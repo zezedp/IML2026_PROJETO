@@ -2,4 +2,6 @@
 
 2. Acho que deveríamos explorar mais os hiperparâmetros dos modelos, conforme pedido no enunciado. 
 
-3. Precisamos criar uma discussão sobre qualidade e limitações, além de uma reflexão ética. 
+3. Precisamos criar uma discussão sobre qualidade e limitações, além de uma reflexão ética.
+
+4. Ele quer a média das métricas (precision, recall, ...) e desvio-padrão. (Split várias vezes do train/test).
