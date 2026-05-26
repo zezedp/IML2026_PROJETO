@@ -5,3 +5,5 @@
 3. Precisamos criar uma discussão sobre qualidade e limitações, além de uma reflexão ética.
 
 4. Ele quer a média das métricas (precision, recall, ...) e desvio-padrão. (Split várias vezes do train/test).
+
+5. Eu anotei a aula inteira no notebook, lembrar arquivo ANOTACAO_IPC_IML
