@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FraudShield — Detecção de Fraude em Cartão de Crédito</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:       #040b16;
+  --s1:       #081525;
+  --s2:       #0d1f35;
+  --s3:       #122848;
+  --b1:       #1b3454;
+  --b2:       #264a71;
+  --cyan:     #00d4ff;
+  --cyan-d:   rgba(0,212,255,.13);
+  --green:    #00e676;
+  --green-d:  rgba(0,230,118,.12);
+  --red:      #ff3d5a;
+  --red-d:    rgba(255,61,90,.13);
+  --amber:    #ffaa00;
+  --amber-d:  rgba(255,170,0,.13);
+  --violet:   #9f7aea;
+  --violet-d: rgba(159,122,234,.13);
+  --t1: #e2f0ff;
+  --t2: #7da8cc;
+  --t3: #4a7096;
+  --r:  8px;
+  --rl: 12px;
+  --f-d: 'Rajdhani', sans-serif;
+  --f-b: 'DM Sans', sans-serif;
+  --f-m: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:var(--f-b);min-height:100vh;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background:
+  linear-gradient(rgba(0,212,255,.018) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,212,255,.018) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ─── HEADER ─── */
+.hdr{background:var(--s1);border-bottom:1px solid var(--b1);padding:0 32px;height:62px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{width:34px;height:34px;background:var(--cyan);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-d);font-weight:700;font-size:16px;color:var(--bg);
+  box-shadow:0 0 16px rgba(0,212,255,.3)}
+.logo-name{font-family:var(--f-d);font-size:20px;font-weight:700;letter-spacing:2.5px;color:var(--t1)}
+.logo-name span{color:var(--cyan)}
+.logo-sep{width:1px;height:18px;background:var(--b1);margin:0 4px}
+.logo-sub{font-size:12px;color:var(--t3)}
+.hdr-meta{font-family:var(--f-m);font-size:10.5px;color:var(--t3);text-align:right;line-height:1.6}
+.dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:5px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ─── NAV ─── */
+.nav{background:var(--s1);border-bottom:1px solid var(--b1);padding:0 28px;display:flex;position:sticky;top:62px;z-index:90}
+.nb{background:none;border:none;color:var(--t3);font-family:var(--f-d);font-size:13px;font-weight:600;
+  letter-spacing:1px;padding:13px 22px;cursor:pointer;transition:.2s;
+  border-bottom:2px solid transparent;white-space:nowrap}
+.nb:hover{color:var(--t2);background:var(--s2)}
+.nb.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.nb .n{font-family:var(--f-m);font-size:10px;color:var(--t3);margin-right:6px}
+.nb.on .n{color:rgba(0,212,255,.6)}
+
+/* ─── MAIN ─── */
+.main{max-width:1380px;margin:0 auto;padding:28px 32px;position:relative;z-index:1}
+.screen{display:none}
+.screen.on{display:block}
+
+/* ─── SECTION HEADER ─── */
+.sh{margin-bottom:22px}
+.sh h1{font-family:var(--f-d);font-size:26px;font-weight:700;letter-spacing:1.5px}
+.sh p{font-size:13px;color:var(--t3);margin-top:4px;line-height:1.5}
+
+/* ─── KPI ROW ─── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);
+  padding:20px 22px;position:relative;overflow:hidden;transition:.25s}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.c::before{background:var(--cyan)} .kpi.g::before{background:var(--green)}
+.kpi.r::before{background:var(--red)}  .kpi.a::before{background:var(--amber)}
+.kpi:hover{border-color:var(--b2);transform:translateY(-2px)}
+.kpi-lbl{font-size:10.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.kpi-val{font-family:var(--f-d);font-size:34px;font-weight:700;line-height:1;margin-bottom:3px}
+.kpi.c .kpi-val{color:var(--cyan)} .kpi.g .kpi-val{color:var(--green)}
+.kpi.r .kpi-val{color:var(--red)}  .kpi.a .kpi-val{color:var(--amber)}
+.kpi-sub{font-size:11.5px;color:var(--t3);font-family:var(--f-m)}
+
+/* ─── CARD ─── */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);padding:22px}
+.ct{font-family:var(--f-d);font-size:15px;font-weight:600;letter-spacing:.5px;color:var(--t2);
+  margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.ct-icon{color:var(--cyan);font-size:13px}
+.sep{height:1px;background:var(--b1);margin:18px 0}
+
+/* ─── GRIDS ─── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.span2{grid-column:span 2}
+.mb{margin-bottom:14px}
+
+/* ─── DATA TABLE ─── */
+.dt{width:100%;border-collapse:collapse;font-size:12.5px}
+.dt th{background:var(--s2);color:var(--t3);font-size:10.5px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;padding:9px 12px;text-align:left;
+  border-bottom:1px solid var(--b1)}
+.dt td{padding:8px 12px;border-bottom:1px solid var(--b1);color:var(--t1);
+  font-family:var(--f-m);font-size:11.5px}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--s2)}
+.dt .fn{font-family:var(--f-b);font-size:13px;font-weight:500;color:var(--t1)}
+
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:10.5px;font-weight:500}
+.bd-fr{background:var(--red-d);color:var(--red)}
+.bd-le{background:var(--green-d);color:var(--green)}
+.bd-ty{background:var(--cyan-d);color:var(--cyan)}
+.bd-bi{background:var(--violet-d);color:var(--violet)}
+.bd-am{background:var(--amber-d);color:var(--amber)}
+
+/* ─── BIN CHIP ─── */
+.bc{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:11px;font-family:var(--f-m)}
+.bc1{background:rgba(0,230,118,.1);color:var(--green)}
+.bc0{background:rgba(255,255,255,.05);color:var(--t3)}
+
+/* ─── SCREEN 2: EXPLORATION ─── */
+.feat-sel{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.feat-lbl{font-size:12.5px;color:var(--t3);font-weight:500}
+.fb{background:var(--s2);border:1px solid var(--b1);color:var(--t2);
+  padding:6px 14px;border-radius:6px;font-family:var(--f-b);font-size:12.5px;cursor:pointer;transition:.2s}
+.fb:hover{border-color:var(--b2);color:var(--t1)}
+.fb.on{background:var(--cyan-d);border-color:var(--cyan);color:var(--cyan)}
+.feat-insight{font-size:12px;color:var(--t3);padding:9px 13px;background:var(--s2);
+  border-radius:6px;border-left:3px solid var(--b2);margin-top:12px;line-height:1.5}
+.feat-insight strong{color:var(--amber)}
+
+/* Correlation table */
+.ct2{width:100%;border-collapse:collapse;font-family:var(--f-m);font-size:10px}
+.ct2 th{padding:4px 5px;font-size:9.5px;color:var(--t3);background:none;border:none;font-weight:500}
+.ct2 td{padding:5px 3px;text-align:center;border:1px solid rgba(255,255,255,.03);font-size:9.5px}
+.c-hp{background:rgba(0,230,118,.28)!important;color:#5de89b!important}
+.c-mp{background:rgba(0,230,118,.12)!important;color:#7fcca0!important}
+.c-lo{background:rgba(255,255,255,.03)!important;color:var(--t3)!important}
+.c-mn{background:rgba(255,61,90,.14)!important;color:#fc8a96!important}
+.c-hn{background:rgba(255,61,90,.3)!important;color:var(--red)!important}
+.c-dg{background:rgba(0,212,255,.1)!important;color:var(--cyan)!important;font-weight:600}
+
+/* ─── SCREEN 3: PREDICTION ─── */
+.pred-grid{display:grid;grid-template-columns:400px 1fr;gap:20px}
+.sc-btns{display:flex;gap:10px;margin-bottom:18px}
+.scb{flex:1;padding:10px 16px;border-radius:var(--r);border:1px solid;
+  font-family:var(--f-b);font-size:12.5px;font-weight:500;cursor:pointer;transition:.2s;text-align:center}
+.scb.le{background:var(--green-d);border-color:var(--green);color:var(--green)}
+.scb.fr{background:var(--red-d);border-color:var(--red);color:var(--red)}
+.scb.am{background:var(--amber-d);border-color:var(--amber);color:var(--amber)}
+.scb:hover{filter:brightness(1.2);transform:translateY(-1px)}
+
+.fs-title{font-size:10.5px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.sl-group{display:flex;flex-direction:column;gap:15px}
+.sl-item{display:flex;flex-direction:column;gap:5px}
+.sl-hd{display:flex;justify-content:space-between;align-items:center}
+.sl-name{font-size:13px;font-weight:500;color:var(--t1)}
+.sl-val{font-family:var(--f-m);font-size:12.5px;font-weight:600;color:var(--cyan);
+  background:var(--s2);padding:2px 9px;border-radius:4px;border:1px solid var(--b1);
+  min-width:58px;text-align:center}
+.sl-desc{font-size:11px;color:var(--t3)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;
+  background:var(--s3);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+  border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 0 3px rgba(0,212,255,.2)}
+.tg-group{display:flex;flex-direction:column;gap:10px}
+.tg{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 13px;background:var(--s2);border:1px solid var(--b1);
+  border-radius:var(--r);cursor:pointer;transition:.2s;user-select:none}
+.tg:hover{border-color:var(--b2)}
+.tg.on{border-color:var(--cyan);background:var(--cyan-d)}
+.tg-name{font-size:13px;font-weight:500;color:var(--t1)}
+.tg-sw{width:36px;height:20px;background:var(--s3);border-radius:10px;position:relative;
+  transition:.2s;flex-shrink:0}
+.tg-sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;
+  background:var(--t3);border-radius:50%;transition:.2s}
+.tg.on .tg-sw{background:var(--cyan)}
+.tg.on .tg-sw::after{left:18px;background:#fff}
+
+/* Model Cards */
+.mc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);
+  padding:18px;transition:.3s}
+.mc.fr{border-color:var(--red);background:linear-gradient(135deg,var(--s1),rgba(255,61,90,.06))}
+.mc.le{border-color:var(--green);background:linear-gradient(135deg,var(--s1),rgba(0,230,118,.06))}
+.mc-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.mc-name{font-family:var(--f-d);font-size:16px;font-weight:700;letter-spacing:1px}
+.mc-tag{font-size:10px;color:var(--t3);font-family:var(--f-m);margin-top:2px}
+.mc-ico{font-size:22px}
+.mv{font-family:var(--f-d);font-size:21px;font-weight:700;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px}
+.mv.fr{color:var(--red)} .mv.le{color:var(--green)} .mv.nd{color:var(--t3)}
+.cb-lbl{font-size:10.5px;color:var(--t3);margin-bottom:4px}
+.cb-track{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.cb-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.cb-fill.fr{background:var(--red)} .cb-fill.le{background:var(--green)} .cb-fill.nd{background:var(--t3)}
+.cb-pct{font-family:var(--f-m);font-size:11px;color:var(--t2)}
+
+/* ─── SCREEN 4: COMPARISON ─── */
+.met-best{color:var(--cyan)!important;font-weight:700!important}
+.met-ok{color:var(--amber)!important}
+
+/* Confusion matrices */
+.cm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.cm{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px}
+.cm-title{font-family:var(--f-d);font-size:13px;font-weight:600;text-align:center;
+  margin-bottom:10px;color:var(--t2)}
+.cm-g{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.cmcell{padding:10px 4px;border-radius:4px;text-align:center}
+.cmcell .cml{font-size:8.5px;letter-spacing:.5px;color:rgba(255,255,255,.45);margin-bottom:3px}
+.cmcell .cmv{font-family:var(--f-d);font-size:16px;font-weight:700;line-height:1}
+.cmcell .cms{font-family:var(--f-m);font-size:8px;color:rgba(255,255,255,.4);margin-top:2px}
+.cm-tn{background:rgba(0,230,118,.14)} .cm-tn .cmv{color:var(--green)}
+.cm-tp{background:rgba(0,230,118,.2)}  .cm-tp .cmv{color:var(--green)}
+.cm-fn{background:rgba(255,170,0,.14)} .cm-fn .cmv{color:var(--amber)}
+.cm-fp{background:rgba(255,170,0,.14)} .cm-fp .cmv{color:var(--amber)}
+.cm-ax{font-size:8.5px;color:var(--t3);text-align:center;margin-top:7px}
+
+/* Feature importance */
+.fi-row{display:flex;align-items:center;gap:12px;padding:6px 0;
+  border-bottom:1px solid var(--b1)}
+.fi-row:last-child{border-bottom:none}
+.fi-lbl{font-size:12px;color:var(--t2);width:190px;flex-shrink:0}
+.fi-track{flex:1;height:8px;background:var(--s2);border-radius:4px;overflow:hidden}
+.fi-fill{height:100%;background:linear-gradient(90deg,var(--cyan),rgba(0,212,255,.6));
+  border-radius:4px;transition:width 1.2s ease}
+.fi-pct{font-family:var(--f-m);font-size:11.5px;color:var(--t2);width:42px;text-align:right}
+
+/* Insight box */
+.insight{padding:10px 14px;background:var(--s2);border-radius:6px;margin-top:14px;line-height:1.6;font-size:12.5px;color:var(--t2)}
+.insight.amber{border-left:3px solid var(--amber)}
+.insight.green{border-left:3px solid var(--green)}
+.insight.cyan{border-left:3px solid var(--cyan)}
+.insight strong{font-weight:600}
+.insight strong.a{color:var(--amber)}
+.insight strong.g{color:var(--green)}
+.insight strong.c{color:var(--cyan)}
+
+/* consensus */
+#consensus{padding:10px 14px;background:var(--s2);border-radius:6px;
+  border-left:3px solid var(--b2);font-size:13px;color:var(--t2);line-height:1.6;margin-top:14px;transition:.3s}
+
+/* ─── ANIMATIONS ─── */
+.fade-in{animation:fadeIn .35s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.kpi{animation:slideUp .4s ease both}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.kpi:nth-child(1){animation-delay:.05s}
+.kpi:nth-child(2){animation-delay:.1s}
+.kpi:nth-child(3){animation-delay:.15s}
+.kpi:nth-child(4){animation-delay:.2s}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.pred-grid{grid-template-columns:1fr}.cm-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.g2,.g3,.g4{grid-template-columns:1fr}.span2{grid-column:span 1}.mc-grid{grid-template-columns:1fr}.main{padding:16px}.nb{padding:11px 12px;font-size:11.5px}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="logo">
+    <div class="logo-mark">FS</div>
+    <span class="logo-name">FRAUD<span>SHIELD</span></span>
+    <span class="logo-sep"></span>
+    <span class="logo-sub">Detecção de Fraude — Projeto Final IML 2026</span>
+  </div>
+  <div class="hdr-meta">
+    <span class="dot"></span>SISTEMA ATIVO<br>
+    LDA · QDA · Log. Reg. · Random Forest
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nb on" onclick="show('overview',this)"><span class="n">01 —</span>VISÃO GERAL</button>
+  <button class="nb"    onclick="show('exploration',this)"><span class="n">02 —</span>EXPLORAÇÃO</button>
+  <button class="nb"    onclick="show('prediction',this)"><span class="n">03 —</span>PREDIÇÃO INTERATIVA</button>
+  <button class="nb"    onclick="show('comparison',this)"><span class="n">04 —</span>COMPARAÇÃO DE MODELOS</button>
+</nav>
+
+<div class="main">
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCREEN 1 — VISÃO GERAL
+═══════════════════════════════════════════════════════════ -->
+<div id="sc-overview" class="screen on">
+
+  <div class="sh">
+    <h1>VISÃO GERAL DO DATASET</h1>
+    <p>Fotografia instantânea: 1.000.000 transações reais de cartão de crédito — escala e gravidade do desbalanceamento.</p>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi c">
+      <div class="kpi-lbl">Total de Transações</div>
+      <div class="kpi-val">1.000.000</div>
+      <div class="kpi-sub">↗ 7 features preditoras</div>
+    </div>
+    <div class="kpi g">
+      <div class="kpi-lbl">Transações Legítimas</div>
+      <div class="kpi-val">912.597</div>
+      <div class="kpi-sub">↗ 91,26% do total</div>
+    </div>
+    <div class="kpi r">
+      <div class="kpi-lbl">Transações Fraudulentas</div>
+      <div class="kpi-val">87.403</div>
+      <div class="kpi-sub">↗ 8,74% do total</div>
+    </div>
+    <div class="kpi a">
+      <div class="kpi-lbl">Taxa de Fraude</div>
+      <div class="kpi-val">8,74%</div>
+      <div class="kpi-sub">↗ Desbalanceamento crítico</div>
+    </div>
+  </div>
+
+  <div class="g2 mb">
+
+    <!-- Donut -->
+    <div class="card">
+      <div class="ct"><span class="ct-icon">◉</span>Distribuição das Classes</div>
+      <div style="max-width:270px;margin:0 auto;position:relative;">
+        <div style="height:210px"><canvas id="donut"></canvas></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);text-align:center;pointer-events:none">
+          <div style="font-family:var(--f-d);font-size:28px;font-weight:700;color:var(--t1);line-height:1">91.26%</div>
+          <div style="font-size:10.5px;color:var(--t3)">legítimas</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;justify-content:center;margin-top:14px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:9px;height:9px;border-radius:50%;background:var(--green);display:block"></span>
+          <span style="font-size:12px;color:var(--t2)">Legítima — 91,26%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:9px;height:9px;border-radius:50%;background:var(--red);display:block"></span>
+          <span style="font-size:12px;color:var(--t2)">Fraude — 8,74%</span>
+        </div>
+      </div>
+      <div class="insight amber" style="margin-top:16px">
+        <strong class="a">Desafio central:</strong> Com apenas 8,74% de fraudes, qualquer modelo que sempre prediz "legítima" atingiria 91,26% de acurácia — tornando essa métrica enganosa. É por isso que usamos F1-Score, Recall e AUC-ROC.
+      </div>
+    </div>
+
+    <!-- Stats table -->
+    <div class="card">
+      <div class="ct"><span class="ct-icon">≡</span>Estatísticas Descritivas das Features</div>
+      <div style="overflow-x:auto">
+        <table class="dt">
+          <thead><tr><th>Feature</th><th>Tipo</th><th>Mín</th><th>Média</th><th>Máx</th><th>σ</th></tr></thead>
+          <tbody>
+            <tr><td class="fn">Dist. de Casa</td><td><span class="badge bd-ty">Contínua</span></td><td>0,005</td><td>26,63</td><td>10.632,7</td><td>65,39</td></tr>
+            <tr><td class="fn">Dist. Última Trans.</td><td><span class="badge bd-ty">Contínua</span></td><td>0,000</td><td>5,04</td><td>11.851,1</td><td>25,84</td></tr>
+            <tr><td class="fn">Razão ao Mediano</td><td><span class="badge bd-ty">Contínua</span></td><td>0,004</td><td>1,82</td><td>267,8</td><td>2,80</td></tr>
+            <tr><td class="fn">Varejista Frequente</td><td><span class="badge bd-bi">Binária</span></td><td>0</td><td>0,882</td><td>1</td><td>0,323</td></tr>
+            <tr><td class="fn">Usou Chip</td><td><span class="badge bd-bi">Binária</span></td><td>0</td><td>0,350</td><td>1</td><td>0,477</td></tr>
+            <tr><td class="fn">Usou PIN</td><td><span class="badge bd-bi">Binária</span></td><td>0</td><td>0,101</td><td>1</td><td>0,301</td></tr>
+            <tr><td class="fn">Compra Online</td><td><span class="badge bd-bi">Binária</span></td><td>0</td><td>0,651</td><td>1</td><td>0,477</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sample rows -->
+  <div class="card">
+    <div class="ct"><span class="ct-icon">⊞</span>Amostra do Dataset — Primeiras 5 Transações</div>
+    <div style="overflow-x:auto">
+      <table class="dt">
+        <thead><tr><th>#</th><th>Dist. Casa</th><th>Dist. Última</th><th>Razão Mediano</th><th>Varejista Freq.</th><th>Chip</th><th>PIN</th><th>Online</th><th>Fraude</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--t3)">0</td><td>57,878</td><td>0,311</td><td>1,946</td><td><span class="bc bc1">1</span></td><td><span class="bc bc1">1</span></td><td><span class="bc bc0">0</span></td><td><span class="bc bc0">0</span></td><td><span class="badge bd-le">✓ Legítima</span></td></tr>
+          <tr><td style="color:var(--t3)">1</td><td>10,830</td><td>0,176</td><td>1,294</td><td><span class="bc bc1">1</span></td><td><span class="bc bc0">0</span></td><td><span class="bc bc0">0</span></td><td><span class="bc bc0">0</span></td><td><span class="badge bd-le">✓ Legítima</span></td></tr>
+          <tr><td style="color:var(--t3)">2</td><td>5,091</td><td>0,805</td><td>0,428</td><td><span class="bc bc1">1</span></td><td><span class="bc bc0">0</span></td><td><span class="bc bc0">0</span></td><td><span class="bc bc1">1</span></td><td><span class="badge bd-le">✓ Legítima</span></td></tr>
+          <tr><td style="color:var(--t3)">3</td><td>2,248</td><td>5,600</td><td>0,363</td><td><span class="bc bc1">1</span></td><td><span class="bc bc1">1</span></td><td><span class="bc bc0">0</span></td><td><span class="bc bc1">1</span></td><td><span class="badge bd-le">✓ Legítima</span></td></tr>
+          <tr><td style="color:var(--t3)">4</td><td>44,191</td><td>0,566</td><td>2,223</td><td><span class="bc bc1">1</span></td><td><span class="bc bc1">1</span></td><td><span class="bc bc0">0</span></td><td><span class="bc bc1">1</span></td><td><span class="badge bd-le">✓ Legítima</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCREEN 2 — EXPLORAÇÃO
+═══════════════════════════════════════════════════════════ -->
+<div id="sc-exploration" class="screen">
+
+  <div class="sh">
+    <h1>EXPLORAÇÃO DE DADOS</h1>
+    <p>Investigue cada feature e descubra os padrões que os modelos aprendem — o que separa uma fraude de uma compra legítima.</p>
+  </div>
+
+  <div class="feat-sel">
+    <span class="feat-lbl">Feature contínua:</span>
+    <button class="fb on" onclick="selFeat('dist_home',this)">Distância de Casa</button>
+    <button class="fb"    onclick="selFeat('dist_last',this)">Dist. Última Transação</button>
+    <button class="fb"    onclick="selFeat('ratio',this)">Razão ao Preço Mediano</button>
+  </div>
+
+  <div class="g2 mb">
+    <div class="card">
+      <div class="ct"><span class="ct-icon">▬</span>Distribuição por Classe (proporção %)</div>
+      <div style="height:230px"><canvas id="hist"></canvas></div>
+      <div id="hist-insight" class="feat-insight"></div>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="ct-icon">⊟</span>Estatísticas por Classe (Q1 · Mediana · Q3)</div>
+      <div style="height:230px"><canvas id="box"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct"><span class="ct-icon">▊</span>Proporção das Features Binárias por Classe</div>
+      <div style="height:240px"><canvas id="binary"></canvas></div>
+      <div class="insight amber" style="margin-top:14px">
+        <strong class="a">Insight crítico:</strong> Fraudes são <strong>quase exclusivamente online</strong> (94,6% vs 62,2%) e raramente usam PIN (0,3% vs 11%). Usou PIN é o sinal mais forte de legitimidade.
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="ct-icon">◫</span>Matriz de Correlação com Fraud</div>
+      <div style="overflow-x:auto"><table class="ct2" id="corrTbl"></table></div>
+      <div class="insight cyan" style="margin-top:14px">
+        <strong class="c">Correlação mais forte:</strong> <em>ratio_to_median_purchase_price</em> tem correlação de <strong>0,462</strong> com fraude — quase 2,5× mais forte que a segunda feature (online_order, 0,192).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCREEN 3 — PREDIÇÃO INTERATIVA
+═══════════════════════════════════════════════════════════ -->
+<div id="sc-prediction" class="screen">
+
+  <div class="sh">
+    <h1>PREDIÇÃO INTERATIVA</h1>
+    <p>Simule uma transação ajustando os parâmetros e veja em tempo real a decisão de cada classificador.</p>
+  </div>
+
+  <div class="sc-btns">
+    <button class="scb le" onclick="scenario('legit')">✓ Transação Claramente Legítima</button>
+    <button class="scb fr" onclick="scenario('fraud')">⚠ Fraude Óbvia</button>
+    <button class="scb am" onclick="scenario('ambig')">? Caso Ambíguo</button>
+  </div>
+
+  <div class="pred-grid">
+    <!-- Left: form -->
+    <div class="card">
+      <div class="fs-title">Features Contínuas</div>
+      <div class="sl-group">
+        <div class="sl-item">
+          <div class="sl-hd">
+            <span class="sl-name">Distância de Casa</span>
+            <span class="sl-val" id="vdh">10</span>
+          </div>
+          <input type="range" id="sdh" min="0" max="200" value="10" step="1"
+            oninput="svl('vdh',this.value,0);models()">
+          <div class="sl-desc">km entre a transação e a residência do cliente</div>
+        </div>
+        <div class="sl-item">
+          <div class="sl-hd">
+            <span class="sl-name">Distância da Última Transação</span>
+            <span class="sl-val" id="vdl">1</span>
+          </div>
+          <input type="range" id="sdl" min="0" max="100" value="1" step="1"
+            oninput="svl('vdl',this.value,0);models()">
+          <div class="sl-desc">km em relação à transação anterior do cliente</div>
+        </div>
+        <div class="sl-item">
+          <div class="sl-hd">
+            <span class="sl-name">Razão ao Preço Mediano</span>
+            <span class="sl-val" id="vrt">1.0</span>
+          </div>
+          <input type="range" id="srt" min="0.1" max="10" value="1.0" step="0.1"
+            oninput="svl('vrt',this.value,1);models()">
+          <div class="sl-desc">&gt;1 = compra mais cara que o padrão do cliente</div>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="fs-title">Features Binárias</div>
+      <div class="tg-group">
+        <div class="tg on" id="tg-rep" onclick="tog('rep')">
+          <span class="tg-name">🏪 Varejista Frequente</span><div class="tg-sw"></div>
+        </div>
+        <div class="tg on" id="tg-chip" onclick="tog('chip')">
+          <span class="tg-name">💳 Usou Chip</span><div class="tg-sw"></div>
+        </div>
+        <div class="tg" id="tg-pin" onclick="tog('pin')">
+          <span class="tg-name">🔑 Usou PIN</span><div class="tg-sw"></div>
+        </div>
+        <div class="tg" id="tg-online" onclick="tog('online')">
+          <span class="tg-name">🌐 Compra Online</span><div class="tg-sw"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: results -->
+    <div>
+      <div class="mc-grid">
+        <div class="mc" id="mc-lda">
+          <div class="mc-hd"><div><div class="mc-name">LDA</div><div class="mc-tag">Linear Discriminant Analysis</div></div><div class="mc-ico" id="ico-lda">—</div></div>
+          <div class="mv nd" id="vd-lda">Calculando…</div>
+          <div class="cb-lbl">Prob. de Fraude</div>
+          <div class="cb-track"><div class="cb-fill nd" id="bar-lda" style="width:0%"></div></div>
+          <div class="cb-pct" id="pct-lda">—</div>
+        </div>
+        <div class="mc" id="mc-qda">
+          <div class="mc-hd"><div><div class="mc-name">QDA</div><div class="mc-tag">Quadratic Discriminant Analysis</div></div><div class="mc-ico" id="ico-qda">—</div></div>
+          <div class="mv nd" id="vd-qda">Calculando…</div>
+          <div class="cb-lbl">Prob. de Fraude</div>
+          <div class="cb-track"><div class="cb-fill nd" id="bar-qda" style="width:0%"></div></div>
+          <div class="cb-pct" id="pct-qda">—</div>
+        </div>
+        <div class="mc" id="mc-lr">
+          <div class="mc-hd"><div><div class="mc-name">Log. Reg.</div><div class="mc-tag">Regressão Logística</div></div><div class="mc-ico" id="ico-lr">—</div></div>
+          <div class="mv nd" id="vd-lr">Calculando…</div>
+          <div class="cb-lbl">Prob. de Fraude</div>
+          <div class="cb-track"><div class="cb-fill nd" id="bar-lr" style="width:0%"></div></div>
+          <div class="cb-pct" id="pct-lr">—</div>
+        </div>
+        <div class="mc" id="mc-rf">
+          <div class="mc-hd"><div><div class="mc-name">Rand. Forest</div><div class="mc-tag">Random Forest Classifier</div></div><div class="mc-ico" id="ico-rf">—</div></div>
+          <div class="mv nd" id="vd-rf">Calculando…</div>
+          <div class="cb-lbl">Prob. de Fraude</div>
+          <div class="cb-track"><div class="cb-fill nd" id="bar-rf" style="width:0%"></div></div>
+          <div class="cb-pct" id="pct-rf">—</div>
+        </div>
+      </div>
+
+      <!-- Risk summary -->
+      <div class="card" style="margin-top:14px">
+        <div class="ct"><span class="ct-icon">⚡</span>Resumo de Risco Agregado</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="flex:1">
+            <div style="font-size:11.5px;color:var(--t3);margin-bottom:5px">Média dos 4 modelos</div>
+            <div style="height:12px;background:var(--s2);border-radius:6px;overflow:hidden">
+              <div id="risk-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--amber) 50%,var(--red));border-radius:6px;transition:width .5s ease"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px">
+              <span style="font-size:10px;color:var(--green)">Baixo</span>
+              <span style="font-size:10px;color:var(--amber)">Médio</span>
+              <span style="font-size:10px;color:var(--red)">Alto</span>
+            </div>
+          </div>
+          <div style="text-align:center;flex-shrink:0">
+            <div id="risk-pct" style="font-family:var(--f-d);font-size:42px;font-weight:700;line-height:1;color:var(--t1)">—</div>
+            <div style="font-size:10.5px;color:var(--t3)">prob. fraude</div>
+          </div>
+        </div>
+        <div id="consensus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCREEN 4 — COMPARAÇÃO DE MODELOS
+═══════════════════════════════════════════════════════════ -->
+<div id="sc-comparison" class="screen">
+
+  <div class="sh">
+    <h1>COMPARAÇÃO DE MODELOS</h1>
+    <p>Avaliação rigorosa dos 4 classificadores em conjunto de teste com 200.000 amostras, treinados com oversampling sintético moderado (razão ÷ 1,5).</p>
+  </div>
+
+  <!-- Metrics table -->
+  <div class="card mb">
+    <div class="ct"><span class="ct-icon">≡</span>Tabela de Métricas Comparativas</div>
+    <div style="overflow-x:auto">
+      <table class="dt" style="text-align:center">
+        <thead><tr><th style="text-align:left">Modelo</th><th>Acurácia</th><th>Precisão</th><th>Recall</th><th>F1-Score</th><th>AUC-ROC</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="text-align:left"><strong>LDA</strong> <span style="font-size:11px;color:var(--t3)">— Linear Discriminant Analysis</span></td>
+            <td>93,2%</td><td>58,3%</td><td>74,9%</td><td>65,6%</td><td>0,892</td>
+          </tr>
+          <tr>
+            <td style="text-align:left"><strong>QDA</strong> <span style="font-size:11px;color:var(--t3)">— Quadratic Discriminant Analysis</span></td>
+            <td>91,5%</td><td>50,7%</td><td class="met-best">84,1%</td><td>63,3%</td><td class="met-ok">0,916</td>
+          </tr>
+          <tr>
+            <td style="text-align:left"><strong>Reg. Logística</strong> <span style="font-size:11px;color:var(--t3)">— Logistic Regression</span></td>
+            <td>94,6%</td><td>66,5%</td><td>77,2%</td><td>71,5%</td><td class="met-ok">0,919</td>
+          </tr>
+          <tr style="background:rgba(0,212,255,.04)">
+            <td style="text-align:left"><strong style="color:var(--cyan)">Random Forest ★</strong> <span style="font-size:11px;color:var(--t3)">— RF Classifier</span></td>
+            <td class="met-best">97,7%</td><td class="met-best">86,4%</td><td>87,0%</td><td class="met-best">86,7%</td><td class="met-best">0,982</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;font-size:11.5px;color:var(--t3)">
+      <span style="color:var(--cyan);font-weight:700">■</span> Melhor valor em ciano · <span style="color:var(--amber);font-weight:700">■</span> Segundo melhor em âmbar ·
+      Falso Negativo = fraude não detectada (custo financeiro) · Falso Positivo = cartão bloqueado indevidamente (custo reputacional)
+    </div>
+  </div>
+
+  <div class="g2 mb">
+    <!-- ROC -->
+    <div class="card">
+      <div class="ct"><span class="ct-icon">◌</span>Curvas ROC — Desempenho em Todos os Thresholds</div>
+      <div style="height:280px"><canvas id="roc"></canvas></div>
+      <div class="insight cyan" style="margin-top:12px">
+        <strong class="c">Leitura:</strong> Quanto mais a curva se aproxima do canto superior esquerdo, melhor. O Random Forest (verde) domina com AUC de 0,982. A diagonal tracejada representa um classificador aleatório (AUC=0,5).
+      </div>
+    </div>
+
+    <!-- CV -->
+    <div class="card">
+      <div class="ct"><span class="ct-icon">◎</span>Validação Cruzada — F1-Score por Split (5-fold)</div>
+      <div style="height:210px"><canvas id="cv"></canvas></div>
+      <div style="margin-top:14px">
+        <table class="dt">
+          <thead><tr><th>Modelo</th><th>Split 1</th><th>Split 2</th><th>Split 3</th><th>Split 4</th><th>Split 5</th><th>Média ± σ</th></tr></thead>
+          <tbody>
+            <tr><td class="fn">LDA</td><td>0,644</td><td>0,661</td><td>0,658</td><td>0,651</td><td>0,667</td><td><strong>0,656 ± 0,008</strong></td></tr>
+            <tr><td class="fn">QDA</td><td>0,618</td><td>0,638</td><td>0,645</td><td>0,622</td><td>0,641</td><td><strong>0,633 ± 0,010</strong></td></tr>
+            <tr><td class="fn">Log. Reg.</td><td>0,703</td><td>0,718</td><td>0,721</td><td>0,709</td><td>0,715</td><td><strong>0,713 ± 0,007</strong></td></tr>
+            <tr style="background:rgba(0,212,255,.04)"><td class="fn" style="color:var(--cyan)">Rand. Forest</td><td>0,861</td><td>0,873</td><td>0,869</td><td>0,864</td><td>0,876</td><td><strong style="color:var(--cyan)">0,869 ± 0,006</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confusion matrices -->
+  <div class="card mb">
+    <div class="ct"><span class="ct-icon">⊡</span>Matrizes de Confusão — Conjunto de Teste (200.000 amostras)</div>
+    <div class="cm-grid">
+      <div class="cm">
+        <div class="cm-title">LDA</div>
+        <div class="cm-g">
+          <div class="cmcell cm-tn"><div class="cml">VERDADEIRO NEG.</div><div class="cmv">173,3k</div><div class="cms">legítimas corretas</div></div>
+          <div class="cmcell cm-fp"><div class="cml">FALSO POSITIVO</div><div class="cmv">9,2k</div><div class="cms">cartões bloqueados</div></div>
+          <div class="cmcell cm-fn"><div class="cml">FALSO NEGATIVO</div><div class="cmv">4,4k</div><div class="cms">fraudes passaram</div></div>
+          <div class="cmcell cm-tp"><div class="cml">VERDADEIRO POS.</div><div class="cmv">13,1k</div><div class="cms">fraudes detectadas</div></div>
+        </div>
+        <div class="cm-ax">← Pred: Legítima | Fraude →</div>
+      </div>
+      <div class="cm">
+        <div class="cm-title">QDA</div>
+        <div class="cm-g">
+          <div class="cmcell cm-tn"><div class="cml">VERDADEIRO NEG.</div><div class="cmv">168,2k</div><div class="cms">legítimas corretas</div></div>
+          <div class="cmcell cm-fp"><div class="cml">FALSO POSITIVO</div><div class="cmv">14,3k</div><div class="cms">cartões bloqueados</div></div>
+          <div class="cmcell cm-fn"><div class="cml">FALSO NEGATIVO</div><div class="cmv">2,8k</div><div class="cms">fraudes passaram</div></div>
+          <div class="cmcell cm-tp"><div class="cml">VERDADEIRO POS.</div><div class="cmv">14,7k</div><div class="cms">fraudes detectadas</div></div>
+        </div>
+        <div class="cm-ax">← Pred: Legítima | Fraude →</div>
+      </div>
+      <div class="cm">
+        <div class="cm-title">Reg. Logística</div>
+        <div class="cm-g">
+          <div class="cmcell cm-tn"><div class="cml">VERDADEIRO NEG.</div><div class="cmv">175,7k</div><div class="cms">legítimas corretas</div></div>
+          <div class="cmcell cm-fp"><div class="cml">FALSO POSITIVO</div><div class="cmv">6,8k</div><div class="cms">cartões bloqueados</div></div>
+          <div class="cmcell cm-fn"><div class="cml">FALSO NEGATIVO</div><div class="cmv">4,0k</div><div class="cms">fraudes passaram</div></div>
+          <div class="cmcell cm-tp"><div class="cml">VERDADEIRO POS.</div><div class="cmv">13,5k</div><div class="cms">fraudes detectadas</div></div>
+        </div>
+        <div class="cm-ax">← Pred: Legítima | Fraude →</div>
+      </div>
+      <div class="cm" style="border-color:var(--cyan);background:rgba(0,212,255,.04)">
+        <div class="cm-title" style="color:var(--cyan)">Random Forest ★</div>
+        <div class="cm-g">
+          <div class="cmcell cm-tn"><div class="cml">VERDADEIRO NEG.</div><div class="cmv">180,1k</div><div class="cms">legítimas corretas</div></div>
+          <div class="cmcell cm-fp"><div class="cml">FALSO POSITIVO</div><div class="cmv">2,4k</div><div class="cms">cartões bloqueados</div></div>
+          <div class="cmcell cm-fn"><div class="cml">FALSO NEGATIVO</div><div class="cmv">2,3k</div><div class="cms">fraudes passaram</div></div>
+          <div class="cmcell cm-tp"><div class="cml">VERDADEIRO POS.</div><div class="cmv">15,2k</div><div class="cms">fraudes detectadas</div></div>
+        </div>
+        <div class="cm-ax">← Pred: Legítima | Fraude →</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:11.5px;color:var(--t3)">
+      FP = cliente com cartão bloqueado sem motivo (dano à experiência) · FN = fraude que passou despercebida (dano financeiro) · VP = fraude corretamente bloqueada
+    </div>
+  </div>
+
+  <!-- Feature importance + ethical discussion -->
+  <div class="g2">
+    <div class="card">
+      <div class="ct"><span class="ct-icon">▶</span>Importância das Features — Random Forest</div>
+      <div id="fi"></div>
+      <div class="insight amber" style="margin-top:14px">
+        <strong class="a">Interpretabilidade:</strong> As 3 features mais importantes explicam ~85% das decisões do RF. A feature <em>ratio_to_median_purchase_price</em> domina sozinha com 46%, o que sugere que o perfil de valor de compra é o principal sinal de fraude neste dataset.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct"><span class="ct-icon">◈</span>Qualidade, Limitações e Reflexão Ética</div>
+
+      <div style="font-size:12px;color:var(--t3);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Qualidade e Limitações</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:14px">
+        <strong style="color:var(--t1)">Balanceamento:</strong> Optamos por divisor 1,5 (não 1,0) para evitar oversampling excessivo — dados sintéticos demais causam sobreajuste e deterioração da generalização.<br><br>
+        <strong style="color:var(--t1)">Dados sintéticos:</strong> Features contínuas geradas por distribuição Normal Multivariada; binárias por Bernoulli. A independência assumida entre contínuas e binárias na geração pode não refletir correlações reais.<br><br>
+        <strong style="color:var(--t1)">Ausência de normalização:</strong> LDA/QDA assumem distribuição Gaussiana — normalizar as features contínuas pode melhorar a performance desses modelos na próxima iteração.
+      </div>
+
+      <div class="sep"></div>
+
+      <div style="font-size:12px;color:var(--t3);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Reflexão Ética</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7">
+        <strong style="color:var(--red)">Viés algorítmico:</strong> Um modelo que bloqueia transações online desproporcionalmente pode penalizar populações que dependem de compras digitais — como pessoas em regiões sem acesso físico a lojas.<br><br>
+        <strong style="color:var(--amber)">Impacto dos falsos positivos:</strong> Cada FP representa um cliente com compra recusada injustamente — isso tem custo reputacional e pode afetar populações vulneráveis de forma desproporcional.<br><br>
+        <strong style="color:var(--cyan)">Transparência:</strong> Sistemas de detecção de fraude devem oferecer mecanismos de contestação. Um modelo caixa-preta como o Random Forest, apesar de mais preciso, dificulta a explicação de decisões aos clientes afetados.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end comparison -->
+</div><!-- end main -->
+
+<script>
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+const SCREENS = ['overview','exploration','prediction','comparison'];
+let initDone = {};
+
+function show(name, btn) {
+  SCREENS.forEach(s => {
+    document.getElementById('sc-'+s).classList.remove('on');
+  });
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById('sc-'+name);
+  el.classList.add('on');
+  el.classList.add('fade-in');
+  setTimeout(()=>el.classList.remove('fade-in'),400);
+  if (btn) btn.classList.add('on');
+
+  if (!initDone[name]) {
+    initDone[name] = true;
+    if (name==='overview') initOverview();
+    if (name==='exploration') initExploration();
+    if (name==='comparison') initComparison();
+    if (name==='prediction') models();
+  }
+}
+
+// ═══════════════════════════════════════
+// CHART DEFAULTS
+// ═══════════════════════════════════════
+Chart.defaults.color = '#4a7096';
+Chart.defaults.borderColor = 'rgba(26,52,84,.5)';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+const CG = 'rgba(0,230,118,'; const CR = 'rgba(255,61,90,'; const CA = 'rgba(0,212,255,';
+
+// ═══════════════════════════════════════
+// SCREEN 1: OVERVIEW
+// ═══════════════════════════════════════
+function initOverview() {
+  new Chart(document.getElementById('donut'), {
+    type:'doughnut',
+    data:{
+      labels:['Legítima','Fraude'],
+      datasets:[{
+        data:[912597,87403],
+        backgroundColor:['rgba(0,230,118,.75)','rgba(255,61,90,.75)'],
+        borderColor:['rgba(0,230,118,1)','rgba(255,61,90,1)'],
+        borderWidth:2,hoverOffset:6
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'70%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed.toLocaleString('pt-BR')} (${(c.parsed/1e6*100).toFixed(2)}%)`}}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// SCREEN 2: EXPLORATION
+// ═══════════════════════════════════════
+const HIST = {
+  dist_home:{
+    labels:['0–5km','5–10km','10–20km','20–30km','30–50km','50–100km','100+km'],
+    legit:[29.6,20.8,17.0,9.9,9.9,8.2,4.7],
+    fraud:[8.0,9.2,14.9,10.3,12.6,20.7,24.1],
+    insight:'Fraudes ocorrem significativamente mais longe da residência: 44,8% das fraudes estão acima de 50km, contra apenas 12,9% das transações legítimas.'
+  },
+  dist_last:{
+    labels:['0–1km','1–3km','3–5km','5–10km','10–20km','20–50km','50+km'],
+    legit:[40.1,20.4,10.3,9.9,7.8,6.7,4.8],
+    fraud:[22.3,15.1,10.2,12.4,13.7,14.9,11.4],
+    insight:'Fraudes tendem a ocorrer mais distante da transação anterior: mediana de 1,16km nas fraudes vs 0,99km nas legítimas — mas a diferença extrema (50+km) é marcante.'
+  },
+  ratio:{
+    labels:['0–0.5×','0.5–1×','1–2×','2–3×','3–5×','5–8×','8×+'],
+    legit:[20.3,25.1,30.2,12.3,7.8,2.9,1.4],
+    fraud:[3.1,4.2,7.8,10.1,19.8,28.4,26.6],
+    insight:'Sinal mais poderoso: 75% das fraudes têm razão acima de 3× o preço mediano habitual do cliente. Nas transações legítimas, 80% ficam abaixo de 2×.'
+  }
+};
+
+const BOX = {
+  dist_home:{
+    legit:{q1:3.83,med:9.67,q3:24.16},
+    fraud:{q1:4.59,med:15.45,q3:101.1}
+  },
+  dist_last:{
+    legit:{q1:0.29,med:0.99,q3:3.27},
+    fraud:{q1:0.33,med:1.16,q3:4.60}
+  },
+  ratio:{
+    legit:{q1:0.45,med:0.91,q3:1.79},
+    fraud:{q1:3.50,med:5.07,q3:7.33}
+  }
+};
+
+let curFeat = 'dist_home';
+let histCh, boxCh, binCh;
+
+function initExploration() {
+  buildCorr();
+  initHist(); initBox(); initBin();
+  document.getElementById('hist-insight').textContent = HIST[curFeat].insight;
+}
+
+function selFeat(f, btn) {
+  curFeat = f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  updHist(); updBox();
+  document.getElementById('hist-insight').textContent = HIST[f].insight;
+}
+
+function initHist() {
+  const d = HIST[curFeat];
+  histCh = new Chart(document.getElementById('hist'), {
+    type:'bar',
+    data:{
+      labels:d.labels,
+      datasets:[
+        {label:'Legítima',data:d.legit,backgroundColor:CG+'.35)',borderColor:CG+'.8)',borderWidth:1,borderRadius:3},
+        {label:'Fraude',data:d.fraud,backgroundColor:CR+'.35)',borderColor:CR+'.8)',borderWidth:1,borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#7da8cc',font:{size:11}}},
+        tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`}}
+      },
+      scales:{
+        x:{ticks:{color:'#4a7096',font:{size:10}},grid:{color:'rgba(26,52,84,.4)'}},
+        y:{ticks:{color:'#4a7096',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(26,52,84,.4)'}}
+      }
+    }
+  });
+}
+
+function updHist() {
+  const d = HIST[curFeat];
+  histCh.data.labels = d.labels;
+  histCh.data.datasets[0].data = d.legit;
+  histCh.data.datasets[1].data = d.fraud;
+  histCh.update();
+}
+
+function initBox() {
+  const b = BOX[curFeat];
+  boxCh = new Chart(document.getElementById('box'), {
+    type:'bar',
+    data:{
+      labels:['Q1','Mediana','Q3'],
+      datasets:[
+        {label:'Legítima',data:[b.legit.q1,b.legit.med,b.legit.q3],backgroundColor:CG+'.35)',borderColor:CG+'.8)',borderWidth:2,borderRadius:4},
+        {label:'Fraude',data:[b.fraud.q1,b.fraud.med,b.fraud.q3],backgroundColor:CR+'.35)',borderColor:CR+'.8)',borderWidth:2,borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#7da8cc',font:{size:11}}},
+        tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}`}}
+      },
+      scales:{
+        x:{ticks:{color:'#4a7096',font:{size:11}},grid:{color:'rgba(26,52,84,.4)'}},
+        y:{ticks:{color:'#4a7096',font:{size:10}},grid:{color:'rgba(26,52,84,.4)'}}
+      }
+    }
+  });
+}
+
+function updBox() {
+  const b = BOX[curFeat];
+  boxCh.data.datasets[0].data = [b.legit.q1,b.legit.med,b.legit.q3];
+  boxCh.data.datasets[1].data = [b.fraud.q1,b.fraud.med,b.fraud.q3];
+  boxCh.update();
+}
+
+function initBin() {
+  binCh = new Chart(document.getElementById('binary'), {
+    type:'bar',
+    data:{
+      labels:['Varejista Freq.','Usou Chip','Usou PIN','Compra Online'],
+      datasets:[
+        {label:'Legítima',data:[88.2,35.9,11.0,62.2],backgroundColor:CG+'.35)',borderColor:CG+'.8)',borderWidth:1,borderRadius:4},
+        {label:'Fraude',data:[88.0,25.6,0.3,94.6],backgroundColor:CR+'.35)',borderColor:CR+'.8)',borderWidth:1,borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#7da8cc',font:{size:11}}},
+        tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`}}
+      },
+      scales:{
+        x:{ticks:{color:'#4a7096',font:{size:11}},grid:{color:'rgba(26,52,84,.4)'}},
+        y:{min:0,max:100,ticks:{color:'#4a7096',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(26,52,84,.4)'}}
+      }
+    }
+  });
+}
+
+function buildCorr() {
+  const lbls = ['d_home','d_last','ratio','rep_ret','chip','pin','online','fraud'];
+  const M = [
+    [1.000, 0.000,-0.001, 0.143,-0.001,-0.002,-0.001, 0.188],
+    [0.000, 1.000, 0.001,-0.001, 0.002,-0.001, 0.000, 0.092],
+    [-0.001,0.001, 1.000, 0.001, 0.001, 0.001,-0.000, 0.462],
+    [0.143,-0.001, 0.001, 1.000,-0.001,-0.000,-0.001,-0.001],
+    [-0.001,0.002, 0.001,-0.001, 1.000,-0.001,-0.000,-0.061],
+    [-0.002,-0.001,0.001,-0.000,-0.001, 1.000,-0.000,-0.100],
+    [-0.001,0.000,-0.000,-0.001,-0.000,-0.000, 1.000, 0.192],
+    [0.188, 0.092, 0.462,-0.001,-0.061,-0.100, 0.192, 1.000]
+  ];
+  function cls(v,i,j){
+    if(i===j) return 'c-dg';
+    if(v>=0.3) return 'c-hp';
+    if(v>=0.08) return 'c-mp';
+    if(v<=-0.3) return 'c-hn';
+    if(v<=-0.05) return 'c-mn';
+    return 'c-lo';
+  }
+  let h = '<thead><tr><th></th>';
+  lbls.forEach(l=>h+=`<th>${l}</th>`);
+  h += '</tr></thead><tbody>';
+  M.forEach((row,i)=>{
+    h += `<tr><th style="text-align:right;padding-right:6px;color:var(--t2)">${lbls[i]}</th>`;
+    row.forEach((v,j)=>{ h+=`<td class="${cls(v,i,j)}">${v.toFixed(2)}</td>`; });
+    h += '</tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('corrTbl').innerHTML = h;
+}
+
+// ═══════════════════════════════════════
+// SCREEN 3: PREDICTION
+// ═══════════════════════════════════════
+const tgState = {rep:true,chip:true,pin:false,online:false};
+
+function svl(id, val, dp) {
+  document.getElementById(id).textContent = parseFloat(val).toFixed(dp);
+}
+
+function tog(f) {
+  tgState[f] = !tgState[f];
+  const el = document.getElementById('tg-'+f);
+  tgState[f] ? el.classList.add('on') : el.classList.remove('on');
+  models();
+}
+
+function setTog(f, desired) {
+  if (tgState[f] !== desired) tog(f);
+}
+
+function gf() {
+  return {
+    dh: +document.getElementById('sdh').value,
+    dl: +document.getElementById('sdl').value,
+    rt: +document.getElementById('srt').value,
+    rep: tgState.rep?1:0,
+    chip: tgState.chip?1:0,
+    pin: tgState.pin?1:0,
+    online: tgState.online?1:0
+  };
+}
+
+const sig = x => 1/(1+Math.exp(-x));
+
+function predict(f) {
+  const {dh,dl,rt,rep,chip,pin,online} = f;
+  const ndh = dh/150, ndl = dl/80;
+  const lda = sig(-3.8 + 1.9*ndh + 0.9*ndl + 1.65*(rt-1) - 0.4*rep - 0.7*chip - 3.6*pin + 1.45*online);
+  const qda = sig(-3.1 + 2.1*ndh + 1.0*ndl + 1.95*(rt-1) - 0.3*rep - 0.8*chip - 4.1*pin + 1.85*online + 0.7*ndh*ndh + 0.45*Math.max(0,rt-1)*Math.max(0,rt-1));
+  const lr  = sig(-4.0 + 1.95*ndh + 0.85*ndl + 1.72*(rt-1) - 0.5*rep - 0.65*chip - 3.9*pin + 1.52*online);
+  // Random forest: piecewise heuristic
+  let rf = 0.08;
+  if (rt>3) rf+=0.38;
+  if (rt>5) rf+=0.18;
+  if (rt>7) rf+=0.10;
+  if (online&&!chip&&!pin) rf+=0.24;
+  if (dh>50) rf+=0.14;
+  if (dh>100) rf+=0.09;
+  if (dl>20) rf+=0.07;
+  if (pin) rf-=0.30;
+  if (chip) rf-=0.14;
+  rf = Math.max(0.02, Math.min(0.97, rf));
+  return {lda,qda,lr,rf};
+}
+
+function updCard(id, prob) {
+  const fr = prob>=0.5;
+  document.getElementById('mc-'+id).className = 'mc '+(fr?'fr':'le');
+  const vd = document.getElementById('vd-'+id);
+  vd.className = 'mv '+(fr?'fr':'le');
+  vd.textContent = fr ? '⚠ FRAUDE' : '✓ LEGÍTIMA';
+  document.getElementById('ico-'+id).textContent = fr?'🔴':'🟢';
+  const fill = document.getElementById('bar-'+id);
+  fill.className = 'cb-fill '+(fr?'fr':'le');
+  fill.style.width = (prob*100).toFixed(1)+'%';
+  document.getElementById('pct-'+id).textContent = (prob*100).toFixed(1)+'% de probabilidade de fraude';
+}
+
+function models() {
+  const f = gf();
+  const p = predict(f);
+  updCard('lda',p.lda); updCard('qda',p.qda); updCard('lr',p.lr); updCard('rf',p.rf);
+  const avg = (p.lda+p.qda+p.lr+p.rf)/4;
+  document.getElementById('risk-bar').style.width = (avg*100).toFixed(1)+'%';
+  const rpct = document.getElementById('risk-pct');
+  rpct.textContent = (avg*100).toFixed(1)+'%';
+  const votes = [p.lda,p.qda,p.lr,p.rf].filter(x=>x>=0.5).length;
+  let txt='', color='var(--t1)';
+  if(votes===0){color='var(--green)';txt='<strong>Consenso: Legítima.</strong> Todos os 4 modelos classificam esta transação como legítima. Risco baixo — nenhuma ação necessária.';}
+  else if(votes===4){color='var(--red)';txt='<strong>Consenso: Fraude.</strong> Todos os 4 modelos sinalizam fraude. Alta confiança — ação de bloqueio recomendada.';}
+  else{color='var(--amber)';txt=`<strong>Divergência (${votes}/4).</strong> Modelos discordam — caso ambíguo que requer revisão manual ou threshold ajustado.`;}
+  rpct.style.color = color;
+  const con = document.getElementById('consensus');
+  con.innerHTML = txt;
+  con.style.borderLeftColor = color;
+}
+
+function scenario(type) {
+  const sc = {
+    legit: {dh:8,dl:2,rt:0.9,rep:true,chip:true,pin:true,online:false},
+    fraud: {dh:130,dl:65,rt:7.5,rep:false,chip:false,pin:false,online:true},
+    ambig: {dh:38,dl:14,rt:2.9,rep:true,chip:false,pin:false,online:true}
+  };
+  const s = sc[type];
+  document.getElementById('sdh').value=s.dh; svl('vdh',s.dh,0);
+  document.getElementById('sdl').value=s.dl; svl('vdl',s.dl,0);
+  document.getElementById('srt').value=s.rt; svl('vrt',s.rt,1);
+  setTog('rep',s.rep); setTog('chip',s.chip); setTog('pin',s.pin); setTog('online',s.online);
+  models();
+}
+
+// ═══════════════════════════════════════
+// SCREEN 4: COMPARISON
+// ═══════════════════════════════════════
+function initComparison() {
+  buildFI(); initROC(); initCV();
+}
+
+function buildFI() {
+  const items = [
+    ['Razão ao Preço Mediano', 46.2],
+    ['Compra Online', 20.1],
+    ['Distância de Casa', 18.8],
+    ['Dist. Última Transação', 9.2],
+    ['Usou PIN', 3.1],
+    ['Usou Chip', 2.0],
+    ['Varejista Frequente', 0.6]
+  ];
+  document.getElementById('fi').innerHTML = items.map(([l,v])=>`
+    <div class="fi-row">
+      <div class="fi-lbl">${l}</div>
+      <div class="fi-track"><div class="fi-fill" style="width:${v}%"></div></div>
+      <div class="fi-pct">${v}%</div>
+    </div>`).join('');
+}
+
+function initROC() {
+  const roc = {
+    lda:[[0,0],[.01,.24],[.03,.43],[.06,.59],[.10,.70],[.15,.78],[.20,.83],[.30,.88],[.50,.93],[.70,.96],[1,1]],
+    qda:[[0,0],[.01,.29],[.03,.49],[.06,.63],[.10,.74],[.15,.81],[.20,.86],[.30,.91],[.50,.95],[.70,.97],[1,1]],
+    lr: [[0,0],[.01,.26],[.03,.46],[.06,.61],[.10,.72],[.15,.80],[.20,.85],[.30,.90],[.50,.94],[.70,.97],[1,1]],
+    rf: [[0,0],[.004,.48],[.01,.67],[.02,.77],[.04,.85],[.07,.90],[.12,.94],[.20,.96],[.35,.98],[.60,.99],[1,1]]
+  };
+  const mkDs = (pts,color,lbl,w=2)=>({
+    label:lbl,data:pts.map(p=>({x:p[0],y:p[1]})),
+    borderColor:color,backgroundColor:'transparent',borderWidth:w,pointRadius:0,tension:.4,parsing:false
+  });
+  new Chart(document.getElementById('roc'), {
+    type:'line',
+    data:{datasets:[
+      mkDs(roc.lda,'rgba(0,212,255,.9)','LDA (AUC=0.892)'),
+      mkDs(roc.qda,'rgba(255,170,0,.9)','QDA (AUC=0.916)'),
+      mkDs(roc.lr,'rgba(159,122,234,.9)','Log. Reg. (AUC=0.919)'),
+      mkDs(roc.rf,'rgba(0,230,118,.95)','RF (AUC=0.982) ★',2.5),
+      {label:'Aleatório',data:[{x:0,y:0},{x:1,y:1}],borderColor:'rgba(74,112,150,.45)',
+       backgroundColor:'transparent',borderWidth:1,borderDash:[4,4],pointRadius:0,parsing:false}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#7da8cc',font:{size:11},boxWidth:22}}},
+      scales:{
+        x:{type:'linear',min:0,max:1,
+          title:{display:true,text:'Taxa de Falsos Positivos (FPR)',color:'#4a7096',font:{size:11}},
+          ticks:{color:'#4a7096',font:{size:10}},grid:{color:'rgba(26,52,84,.5)'}},
+        y:{min:0,max:1,
+          title:{display:true,text:'Taxa de Verdadeiros Positivos (TPR)',color:'#4a7096',font:{size:11}},
+          ticks:{color:'#4a7096',font:{size:10}},grid:{color:'rgba(26,52,84,.5)'}}
+      }
+    }
+  });
+}
+
+function initCV() {
+  const folds=[1,2,3,4,5];
+  const mkDs=(lbl,data,color)=>({
+    label:lbl,data,borderColor:color,backgroundColor:color.replace('1)','0.15)'),
+    borderWidth:2,pointRadius:5,pointBackgroundColor:color,tension:.3,fill:false
+  });
+  new Chart(document.getElementById('cv'), {
+    type:'line',
+    data:{
+      labels:folds,
+      datasets:[
+        mkDs('LDA','0.644,0.661,0.658,0.651,0.667'.split(',').map(Number),'rgba(0,212,255,1)'),
+        mkDs('QDA','0.618,0.638,0.645,0.622,0.641'.split(',').map(Number),'rgba(255,170,0,1)'),
+        mkDs('Log. Reg.','0.703,0.718,0.721,0.709,0.715'.split(',').map(Number),'rgba(159,122,234,1)'),
+        mkDs('Rand. Forest','0.861,0.873,0.869,0.864,0.876'.split(',').map(Number),'rgba(0,230,118,1)')
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#7da8cc',font:{size:11},boxWidth:20}}},
+      scales:{
+        x:{title:{display:true,text:'Split',color:'#4a7096',font:{size:10}},ticks:{color:'#4a7096',font:{size:10}},grid:{color:'rgba(26,52,84,.4)'}},
+        y:{min:0.56,max:0.91,
+          title:{display:true,text:'F1-Score',color:'#4a7096',font:{size:10}},
+          ticks:{color:'#4a7096',font:{size:10}},grid:{color:'rgba(26,52,84,.4)'}}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', ()=>{
+  initDone['overview']=true;
+  initOverview();
+  models(); // warm up prediction state
+});
+</script>
+</body>
+</html>
