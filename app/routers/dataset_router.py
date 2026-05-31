@@ -11,7 +11,7 @@ from app.services.dataset_service import DatasetService
 
 router = APIRouter(prefix="/dataset", tags=["dataset"])
 
-// TODO: Verificar se vamos exibir o dataset somado com os dados sintéticos ou não
+# TODO: Verificar se vamos exibir o dataset somado com os dados sintéticos ou não
 
 def _service_unavailable(exc: RuntimeError) -> HTTPException:
     return HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))

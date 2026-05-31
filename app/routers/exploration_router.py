@@ -46,7 +46,7 @@ def get_boxplot(
         raise _service_unavailable(exc) from exc
 
 
-// TODO: Verificar se faz sentido esse gráfico
+# TODO: Verificar se faz sentido esse gráfico
 @router.get("/binary-features", response_model=BinaryFeaturesResponse)
 def get_binary_features(
     service: ExplorationService = Depends(get_exploration_service),

@@ -1,5 +1,5 @@
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression as SklearnLogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
@@ -49,7 +49,7 @@ class RandomForest(Model):
 class LogisticRegression(Model):
     def __init__(self, C=1.0, max_iter=1000):
         super().__init__()
-        self.modelo = LogisticRegression(
+        self.modelo = SklearnLogisticRegression(
             C=C,
             penalty='l2',
             solver='lbfgs',
