@@ -1,0 +1,60 @@
+{
+  "statistics": [
+    {
+      "feature": "distance_from_home",
+      "display_name": "Distancia de Casa",
+      "min": 0.004874,
+      "mean": 26.628792,
+      "max": 10632.723672,
+      "std": 65.390784
+    },
+    {
+      "feature": "distance_from_last_transaction",
+      "display_name": "Dist. Ultima Transacao",
+      "min": 0.000118,
+      "mean": 5.036519,
+      "max": 11851.104565,
+      "std": 25.843093
+    },
+    {
+      "feature": "ratio_to_median_purchase_price",
+      "display_name": "Razao ao Preco Mediano",
+      "min": 0.004399,
+      "mean": 1.824182,
+      "max": 267.802942,
+      "std": 2.799589
+    },
+    {
+      "feature": "repeat_retailer",
+      "display_name": "Varejista Frequente",
+      "min": 0.0,
+      "mean": 0.881536,
+      "max": 1.0,
+      "std": 0.323157
+    },
+    {
+      "feature": "used_chip",
+      "display_name": "Usou Chip",
+      "min": 0.0,
+      "mean": 0.350399,
+      "max": 1.0,
+      "std": 0.477095
+    },
+    {
+      "feature": "used_pin_number",
+      "display_name": "Usou PIN",
+      "min": 0.0,
+      "mean": 0.100608,
+      "max": 1.0,
+      "std": 0.300809
+    },
+    {
+      "feature": "online_order",
+      "display_name": "Compra Online",
+      "min": 0.0,
+      "mean": 0.650552,
+      "max": 1.0,
+      "std": 0.476796
+    }
+  ]
+}

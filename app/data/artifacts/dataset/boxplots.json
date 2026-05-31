@@ -1,0 +1,41 @@
+{
+  "distance_from_home": {
+    "feature": "distance_from_home",
+    "legitimate": {
+      "q1": 3.828942,
+      "median": 9.673847,
+      "q3": 24.158057
+    },
+    "fraud": {
+      "q1": 4.585729,
+      "median": 15.454219,
+      "q3": 101.110104
+    }
+  },
+  "distance_from_last_transaction": {
+    "feature": "distance_from_last_transaction",
+    "legitimate": {
+      "q1": 0.293859,
+      "median": 0.985074,
+      "q3": 3.268578
+    },
+    "fraud": {
+      "q1": 0.328199,
+      "median": 1.157631,
+      "q3": 4.598504
+    }
+  },
+  "ratio_to_median_purchase_price": {
+    "feature": "ratio_to_median_purchase_price",
+    "legitimate": {
+      "q1": 0.449768,
+      "median": 0.91395,
+      "q3": 1.788918
+    },
+    "fraud": {
+      "q1": 3.50027,
+      "median": 5.071294,
+      "q3": 7.331222
+    }
+  }
+}

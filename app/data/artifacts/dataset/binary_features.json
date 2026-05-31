@@ -1,0 +1,26 @@
+{
+  "features": [
+    "repeat_retailer",
+    "used_chip",
+    "used_pin_number",
+    "online_order"
+  ],
+  "display_names": [
+    "Varejista Frequente",
+    "Usou Chip",
+    "Usou PIN",
+    "Compra Online"
+  ],
+  "legitimate": [
+    88.1672,
+    35.9402,
+    10.9944,
+    62.2225
+  ],
+  "fraud": [
+    88.0119,
+    25.6399,
+    0.3123,
+    94.6318
+  ]
+}

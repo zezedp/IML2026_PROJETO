@@ -1,0 +1,33 @@
+{
+  "models": {
+    "lda": {
+      "name": "LDA",
+      "true_negative": 44881,
+      "false_positive": 749,
+      "false_negative": 1292,
+      "true_positive": 3078
+    },
+    "qda": {
+      "name": "QDA",
+      "true_negative": 44219,
+      "false_positive": 1411,
+      "false_negative": 335,
+      "true_positive": 4035
+    },
+    "lr": {
+      "name": "Reg. Logistica",
+      "true_negative": 44759,
+      "false_positive": 871,
+      "false_negative": 954,
+      "true_positive": 3416
+    },
+    "rf": {
+      "name": "Random Forest",
+      "true_negative": 45581,
+      "false_positive": 49,
+      "false_negative": 3,
+      "true_positive": 4367
+    }
+  },
+  "test_size": 50000
+}

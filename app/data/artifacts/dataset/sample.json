@@ -1,0 +1,59 @@
+{
+  "sample": [
+    {
+      "index": 0,
+      "distance_from_home": 57.877857,
+      "distance_from_last_transaction": 0.31114,
+      "ratio_to_median_purchase_price": 1.94594,
+      "repeat_retailer": 1.0,
+      "used_chip": 1.0,
+      "used_pin_number": 0.0,
+      "online_order": 0.0,
+      "fraud": 0
+    },
+    {
+      "index": 1,
+      "distance_from_home": 10.829943,
+      "distance_from_last_transaction": 0.175592,
+      "ratio_to_median_purchase_price": 1.294219,
+      "repeat_retailer": 1.0,
+      "used_chip": 0.0,
+      "used_pin_number": 0.0,
+      "online_order": 0.0,
+      "fraud": 0
+    },
+    {
+      "index": 2,
+      "distance_from_home": 5.091079,
+      "distance_from_last_transaction": 0.805153,
+      "ratio_to_median_purchase_price": 0.427715,
+      "repeat_retailer": 1.0,
+      "used_chip": 0.0,
+      "used_pin_number": 0.0,
+      "online_order": 1.0,
+      "fraud": 0
+    },
+    {
+      "index": 3,
+      "distance_from_home": 2.247564,
+      "distance_from_last_transaction": 5.600044,
+      "ratio_to_median_purchase_price": 0.362663,
+      "repeat_retailer": 1.0,
+      "used_chip": 1.0,
+      "used_pin_number": 0.0,
+      "online_order": 1.0,
+      "fraud": 0
+    },
+    {
+      "index": 4,
+      "distance_from_home": 44.190936,
+      "distance_from_last_transaction": 0.566486,
+      "ratio_to_median_purchase_price": 2.222767,
+      "repeat_retailer": 1.0,
+      "used_chip": 1.0,
+      "used_pin_number": 0.0,
+      "online_order": 1.0,
+      "fraud": 0
+    }
+  ]
+}

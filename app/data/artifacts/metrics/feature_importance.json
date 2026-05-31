@@ -1,0 +1,40 @@
+{
+  "model": "Random Forest",
+  "features": [
+    {
+      "name": "ratio_to_median_purchase_price",
+      "display_name": "Razao ao Preco Mediano",
+      "importance": 41.8203
+    },
+    {
+      "name": "distance_from_last_transaction",
+      "display_name": "Dist. Ultima Transacao",
+      "importance": 24.3075
+    },
+    {
+      "name": "distance_from_home",
+      "display_name": "Distancia de Casa",
+      "importance": 20.574
+    },
+    {
+      "name": "online_order",
+      "display_name": "Compra Online",
+      "importance": 8.676
+    },
+    {
+      "name": "used_pin_number",
+      "display_name": "Usou PIN",
+      "importance": 2.8836
+    },
+    {
+      "name": "used_chip",
+      "display_name": "Usou Chip",
+      "importance": 1.3787
+    },
+    {
+      "name": "repeat_retailer",
+      "display_name": "Varejista Frequente",
+      "importance": 0.3599
+    }
+  ]
+}

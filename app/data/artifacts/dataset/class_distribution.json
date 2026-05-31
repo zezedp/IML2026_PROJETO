@@ -1,0 +1,14 @@
+{
+  "labels": [
+    "Legitima",
+    "Fraude"
+  ],
+  "counts": [
+    912597,
+    87403
+  ],
+  "percentages": [
+    91.2597,
+    8.7403
+  ]
+}

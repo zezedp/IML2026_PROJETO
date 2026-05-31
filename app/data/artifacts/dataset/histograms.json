@@ -1,0 +1,98 @@
+{
+  "distance_from_home": {
+    "feature": "distance_from_home",
+    "labels": [
+      "0-5",
+      "5-15",
+      "15-30",
+      "30-50",
+      "50-100",
+      "100-200",
+      "200+"
+    ],
+    "legitimate": [
+      31.5504,
+      31.0054,
+      17.3403,
+      9.3451,
+      7.7365,
+      2.0306,
+      0.9918
+    ],
+    "fraud": [
+      26.6375,
+      22.7807,
+      12.5957,
+      6.9357,
+      5.6428,
+      17.1356,
+      8.272
+    ],
+    "insight": "Fraudes tendem a aparecer com maior frequencia em distancias maiores da residencia."
+  },
+  "distance_from_last_transaction": {
+    "feature": "distance_from_last_transaction",
+    "labels": [
+      "0-1",
+      "1-2",
+      "2-5",
+      "5-10",
+      "10-25",
+      "25-50",
+      "50-100",
+      "100+"
+    ],
+    "legitimate": [
+      50.3309,
+      15.0909,
+      16.601,
+      8.5521,
+      6.3845,
+      2.1954,
+      0.547,
+      0.2983
+    ],
+    "fraud": [
+      46.8817,
+      14.0293,
+      15.2569,
+      7.7309,
+      5.9666,
+      1.9885,
+      5.2424,
+      2.9038
+    ],
+    "insight": "Saltos grandes desde a ultima transacao elevam o risco observado."
+  },
+  "ratio_to_median_purchase_price": {
+    "feature": "ratio_to_median_purchase_price",
+    "labels": [
+      "0-0.5",
+      "0.5-1",
+      "1-2",
+      "2-3",
+      "3-5",
+      "5-10",
+      "10+"
+    ],
+    "legitimate": [
+      28.2496,
+      25.2584,
+      25.1512,
+      11.2802,
+      7.1641,
+      2.1785,
+      0.7181
+    ],
+    "fraud": [
+      7.6039,
+      6.7744,
+      6.692,
+      2.977,
+      24.6891,
+      38.2653,
+      12.9984
+    ],
+    "insight": "Compras muito acima do padrao mediano historico concentram mais fraudes."
+  }
+}
