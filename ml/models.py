@@ -35,6 +35,28 @@ class QDA(Model):
         self.modelo = QuadraticDiscriminantAnalysis()
 
 
+class PCA_QDA(Model):
+    """
+    Pipeline que combina PCA (redução de dimensionalidade) com QDA.
+    
+    IMPORTANTE: O PCA é ajustado (fit) APENAS nos dados de treino,
+    e transformado (transform) nos dados de teste para evitar data leakage.
+    """
+    def __init__(self, n_components=4):
+        super().__init__()
+        from sklearn.pipeline import Pipeline
+        from sklearn.decomposition import PCA
+        
+        self.pca = PCA(n_components=n_components)
+        self.qda = QuadraticDiscriminantAnalysis()
+        
+        # Criar pipeline: PCA transforma, depois QDA classifica
+        self.modelo = Pipeline([
+            ('pca', self.pca),
+            ('qda', self.qda)
+        ])
+
+
 class RandomForest(Model):
     def __init__(self, n_estimators=100, max_depth=10):
         super().__init__()

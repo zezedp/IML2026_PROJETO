@@ -1,2 +1,13 @@
 04_discriminant_analysis.ipynb
+
+# Ambientes virtuais
+venv/
+env/
+.venv/
+
+# Arquivos de sistema e IDE
+.vscode/
 **/__pycache__/**
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
