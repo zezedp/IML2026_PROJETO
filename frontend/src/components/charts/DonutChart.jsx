@@ -1,0 +1,42 @@
+import { Doughnut } from 'react-chartjs-2';
+import './chartConfig';
+import { formatPercentValue } from '../../utils/formatters';
+
+export default function DonutChart({ labels, data, colors, centerLabel }) {
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        data,
+        backgroundColor: colors,
+        borderColor: '#ffffff',
+        borderWidth: 4,
+        hoverOffset: 6,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '70%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.label}: ${formatPercentValue(context.parsed, 2)}`,
+        },
+      },
+    },
+  };
+
+  return (
+    <div className="donut">
+      <Doughnut data={chartData} options={options} />
+      <div className="donut__center">
+        <strong>{centerLabel}</strong>
+        <span>fraude</span>
+      </div>
+    </div>
+  );
+}
