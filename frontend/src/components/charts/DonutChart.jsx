@@ -1,6 +1,7 @@
 import { Doughnut } from 'react-chartjs-2';
 import './chartConfig';
 import { formatPercentValue } from '../../utils/formatters';
+import ChartShell from './ChartShell';
 
 export default function DonutChart({ labels, data, colors, centerLabel }) {
   const chartData = {
@@ -31,12 +32,12 @@ export default function DonutChart({ labels, data, colors, centerLabel }) {
   };
 
   return (
-    <div className="donut">
+    <ChartShell className="donut" label="grafico de rosca">
       <Doughnut data={chartData} options={options} />
       <div className="donut__center">
         <strong>{centerLabel}</strong>
         <span>fraude</span>
       </div>
-    </div>
+    </ChartShell>
   );
 }

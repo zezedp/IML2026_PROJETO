@@ -180,22 +180,9 @@ export default function ComparisonPage() {
         </div>
       </Card>
 
-      <div className="grid grid--two">
-        <Card title={`Importância das Features | ${data.importance.model}`}>
-          <FeatureImportanceChart features={data.importance.features} />
-        </Card>
-
-        <Card title="Qualidade, Limitações e Ética">
-          <div className="ethics">
-            <h4>Qualidade</h4>
-            <p>O Random Forest se destaca por capturar relações não lineares e interações entre features, especialmente razão de preço, compra online e uso de PIN.</p>
-            <h4>Limitações</h4>
-            <p>Modelos de fraude dependem de monitoramento contínuo. Mudanças de comportamento e novas estratégias de ataque podem reduzir desempenho com o tempo.</p>
-            <h4>Reflexão Ética</h4>
-            <p>A predição deve apoiar revisão e priorização, não substituir decisões finais. Falsos positivos afetam clientes legítimos; falsos negativos aumentam perdas financeiras.</p>
-          </div>
-        </Card>
-      </div>
+      <Card title={`Importância das Features | ${data.importance.model}`}>
+        <FeatureImportanceChart features={data.importance.features} />
+      </Card>
     </>
   );
 }

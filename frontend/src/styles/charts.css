@@ -4,6 +4,151 @@
   height: 330px;
 }
 
+.chart-shell {
+  position: relative;
+}
+
+.chart-expand,
+.chart-modal__close {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--b1);
+  border-radius: var(--r);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--t2);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.chart-expand {
+  width: 34px;
+  height: 34px;
+}
+
+.card__chart-actions {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.chart-shell > .chart-expand {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+}
+
+.chart-expand:hover,
+.chart-modal__close:hover {
+  background: var(--primary-d);
+  border-color: rgba(37, 99, 235, 0.35);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.chart-expand span,
+.chart-expand span::before,
+.chart-expand span::after {
+  display: block;
+  width: 15px;
+  height: 15px;
+  border-color: currentColor;
+}
+
+.chart-expand span {
+  position: relative;
+  border-top: 2px solid;
+  border-right: 2px solid;
+}
+
+.chart-expand span::before,
+.chart-expand span::after {
+  content: '';
+  position: absolute;
+  border-color: currentColor;
+}
+
+.chart-expand span::before {
+  right: -2px;
+  bottom: -2px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+}
+
+.chart-expand span::after {
+  left: -2px;
+  bottom: -2px;
+  border-left: 2px solid;
+  border-bottom: 2px solid;
+}
+
+.has-chart-modal {
+  overflow: hidden;
+}
+
+.chart-modal {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+}
+
+.chart-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.58);
+  cursor: zoom-out;
+}
+
+.chart-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(1120px, 100%);
+  max-height: min(760px, calc(100vh - 56px));
+  padding: 22px;
+  overflow: auto;
+  border: 1px solid var(--b1);
+  border-radius: var(--r);
+  background: var(--s1);
+  box-shadow: var(--shadow-lg);
+}
+
+.chart-modal__close {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  left: 100%;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  margin-bottom: 8px;
+  font-weight: 900;
+}
+
+.chart-shell--expanded.chart-box {
+  height: min(620px, calc(100vh - 160px));
+  min-height: 420px;
+}
+
+.chart-shell--expanded.donut {
+  width: min(620px, 100%);
+  height: min(560px, calc(100vh - 180px));
+}
+
+.chart-shell--expanded.importance-list {
+  gap: 18px;
+  min-height: 360px;
+  padding: 8px 2px;
+}
+
+.chart-shell--expanded.matrix-wrap {
+  max-height: calc(100vh - 180px);
+}
+
 .donut {
   position: relative;
   width: min(330px, 100%);
