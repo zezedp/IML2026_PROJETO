@@ -145,6 +145,7 @@ def build_histograms(df: pd.DataFrame) -> dict[str, Any]:
             "fraud": percentage_list(fraud_counts),
             "insight": histogram_insight(feature),
         }
+
     return histograms
 
 
@@ -180,6 +181,7 @@ def build_correlation(df: pd.DataFrame) -> dict[str, Any]:
 
 
 def export_model_artifacts(df: pd.DataFrame) -> None:
+    # Entender melhor
     sample_df = stratified_sample(df, get_sample_size(len(df)))
     x = sample_df[FEATURES]
     y = sample_df[TARGET].astype(int)
@@ -198,6 +200,7 @@ def export_model_artifacts(df: pd.DataFrame) -> None:
         "lr": "Logistic Regression",
         "rf": "Random Forest",
     }
+    
     
     optimizer = KFoldOptimizer(x_train.values, y_train.values, n_splits=5)
     resultados_kfold = optimizer.executar(list(models_mapping.values()))
@@ -268,6 +271,8 @@ def export_model_artifacts(df: pd.DataFrame) -> None:
             "std": round(float(np.std(kfold_data['f1_scores'])), 6),
         }
 
+
+    # TODO: Analisar melhor. F1 sozinho não necessariamente vai ser o melhor.
     best_model = max(metrics_rows, key=lambda row: row["f1_score"])
     best_model["is_best"] = True
     write_json(METRICS_ARTIFACTS_DIR / "metrics.json", {"models": metrics_rows, "best_model": best_model["id"]})
@@ -359,9 +364,9 @@ def format_bin_value(value: float) -> str:
 
 def histogram_insight(feature: str) -> str:
     insights = {
-        "distance_from_home": "Fraudes tendem a aparecer com maior frequencia em distancias maiores da residencia.",
-        "distance_from_last_transaction": "Saltos grandes desde a ultima transacao elevam o risco observado.",
-        "ratio_to_median_purchase_price": "Compras muito acima do padrao mediano historico concentram mais fraudes.",
+        "distance_from_home": "Embora muitas fraudes ainda ocorram perto da residencia, elas ficam proporcionalmente mais concentradas nas faixas acima de 100 km.",
+        "distance_from_last_transaction": "A maior parte das transacoes fica perto da anterior, mas fraudes aparecem proporcionalmente mais nas faixas acima de 50 km.",
+        "ratio_to_median_purchase_price": "Fraudes se concentram muito mais em compras varias vezes acima do padrao mediano historico.",
     }
     return insights[feature]
 

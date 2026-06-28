@@ -6,7 +6,7 @@ from app.ml.model_manager import ModelManager
 SCENARIOS = [
     {
         "id": "legitimate",
-        "label": "Transacao Claramente Legitima",
+        "label": "Exemplo Legitimo",
         "style": "green",
         "features": {
             "distance_from_home": 8,
@@ -20,7 +20,7 @@ SCENARIOS = [
     },
     {
         "id": "fraud",
-        "label": "Fraude Obvia",
+        "label": "Exemplo Fraude",
         "style": "red",
         "features": {
             "distance_from_home": 120,
@@ -34,12 +34,12 @@ SCENARIOS = [
     },
     {
         "id": "ambiguous",
-        "label": "Caso Ambiguo",
+        "label": "Exemplo Ambiguo",
         "style": "yellow",
         "features": {
             "distance_from_home": 35,
-            "distance_from_last_transaction": 8,
-            "ratio_to_median_purchase_price": 2.7,
+            "distance_from_last_transaction": 40,
+            "ratio_to_median_purchase_price": 2.5,
             "repeat_retailer": 1,
             "used_chip": 0,
             "used_pin_number": 0,
@@ -96,11 +96,10 @@ class PredictionService:
     @staticmethod
     def _consensus_message(fraud_votes: int, total_models: int) -> str:
         if fraud_votes == 0:
-            return "Todos os modelos classificam esta transacao como legitima. Risco baixo."
+            return "Todos os modelos classificam esta transação como legítima."
         if fraud_votes == total_models:
-            return "Todos os modelos classificam esta transacao como fraude. Risco alto."
+            return "Todos os modelos classificam esta transação como fraude."
         return (
             f"{fraud_votes} de {total_models} modelos classificam como fraude. "
-            "A decisao merece revisao."
         )
 
