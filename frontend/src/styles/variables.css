@@ -1,0 +1,29 @@
+:root {
+  --bg: #f5f7fa;
+  --s1: #ffffff;
+  --s2: #f0f2f5;
+  --s3: #e4e7ec;
+  --b1: #d5dae2;
+  --b2: #bcc3cf;
+  --primary: #2563eb;
+  --primary-d: rgba(37, 99, 235, 0.08);
+  --green: #16a34a;
+  --green-d: rgba(22, 163, 74, 0.08);
+  --red: #dc2626;
+  --red-d: rgba(220, 38, 38, 0.08);
+  --amber: #d97706;
+  --amber-d: rgba(217, 119, 6, 0.08);
+  --violet: #7c3aed;
+  --violet-d: rgba(124, 58, 237, 0.08);
+  --t1: #111827;
+  --t2: #374151;
+  --t3: #6b7280;
+  --r: 8px;
+  --rl: 12px;
+  --f-d: 'Rajdhani', sans-serif;
+  --f-b: 'DM Sans', sans-serif;
+  --f-m: 'JetBrains Mono', monospace;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 10px rgba(17, 24, 39, 0.08);
+  --shadow-lg: 0 16px 32px rgba(17, 24, 39, 0.12);
+}
