@@ -91,7 +91,7 @@ export default function ComparisonPage() {
     <>
       <SectionHeader
         title="COMPARAÇÃO DE MODELOS"
-        description="Métricas, estabilidade e leitura operacional dos quatro classificadores treinados."
+        description="Métricas, estabilidade e leitura operacional dos quatro modelos treinados."
       />
 
       <Card title="Métricas Comparativas">

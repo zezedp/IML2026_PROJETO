@@ -20,7 +20,7 @@ export const BINARY_FEATURES = new Set([
 
 export const FEATURE_DISPLAY_NAMES = {
   distance_from_home: 'Distância de Casa',
-  distance_from_last_transaction: 'Dist. Última Transação',
+  distance_from_last_transaction: 'Distância da Última Transação',
   ratio_to_median_purchase_price: 'Razão ao Preço Mediano',
   repeat_retailer: 'Varejista Frequente',
   used_chip: 'Usou Chip',

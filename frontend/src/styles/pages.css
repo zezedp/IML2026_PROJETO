@@ -6,8 +6,8 @@
 }
 
 .feature-selector {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -443,7 +443,8 @@
   .grid--two,
   .confusion-grid,
   .model-grid,
-  .scenario-row {
+  .scenario-row,
+  .feature-selector {
     grid-template-columns: 1fr;
   }
 
