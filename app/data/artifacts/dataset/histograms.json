@@ -28,7 +28,7 @@
       17.1356,
       8.272
     ],
-    "insight": "Fraudes tendem a aparecer com maior frequencia em distancias maiores da residencia."
+    "insight": "Embora muitas fraudes ainda ocorram perto da residencia, elas ficam proporcionalmente mais concentradas nas faixas acima de 100 km."
   },
   "distance_from_last_transaction": {
     "feature": "distance_from_last_transaction",
@@ -62,7 +62,7 @@
       5.2424,
       2.9038
     ],
-    "insight": "Saltos grandes desde a ultima transacao elevam o risco observado."
+    "insight": "A maior parte das transacoes fica perto da anterior, mas fraudes aparecem proporcionalmente mais nas faixas acima de 50 km."
   },
   "ratio_to_median_purchase_price": {
     "feature": "ratio_to_median_purchase_price",
@@ -93,6 +93,6 @@
       38.2653,
       12.9984
     ],
-    "insight": "Compras muito acima do padrao mediano historico concentram mais fraudes."
+    "insight": "Fraudes se concentram muito mais em compras varias vezes acima do padrao mediano historico."
   }
 }
