@@ -1,9 +1,10 @@
 import { Bar } from 'react-chartjs-2';
 import { baseOptions } from './chartConfig';
+import ChartShell from './ChartShell';
 
 export default function BarChart({ labels, datasets, options = {} }) {
   return (
-    <div className="chart-box">
+    <ChartShell label="grafico de barras">
       <Bar
         data={{ labels, datasets }}
         options={{
@@ -15,6 +16,6 @@ export default function BarChart({ labels, datasets, options = {} }) {
           },
         }}
       />
-    </div>
+    </ChartShell>
   );
 }

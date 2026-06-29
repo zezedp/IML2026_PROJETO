@@ -41,6 +41,7 @@ export const baseOptions = {
       labels: {
         color: chartColors.text,
         boxWidth: 12,
+        padding: 18,
         usePointStyle: true,
         font: { family: 'DM Sans' },
       },

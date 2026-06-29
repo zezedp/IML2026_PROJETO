@@ -1,9 +1,10 @@
 import { Line } from 'react-chartjs-2';
 import { baseOptions } from './chartConfig';
+import ChartShell from './ChartShell';
 
 export default function LineChart({ datasets, labels, options = {} }) {
   return (
-    <div className="chart-box">
+    <ChartShell label="grafico de linhas">
       <Line
         data={{ labels, datasets }}
         options={{
@@ -15,6 +16,6 @@ export default function LineChart({ datasets, labels, options = {} }) {
           },
         }}
       />
-    </div>
+    </ChartShell>
   );
 }

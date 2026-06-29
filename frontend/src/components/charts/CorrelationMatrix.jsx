@@ -1,3 +1,5 @@
+import ChartShell from './ChartShell';
+
 export default function CorrelationMatrix({ labels = [], matrix = [] }) {
   const colorFor = (value) => {
     const abs = Math.abs(value);
@@ -8,7 +10,7 @@ export default function CorrelationMatrix({ labels = [], matrix = [] }) {
   };
 
   return (
-    <div className="matrix-wrap">
+    <ChartShell className="matrix-wrap" label="matriz de correlacao">
       <table className="matrix">
         <thead>
           <tr>
@@ -37,6 +39,6 @@ export default function CorrelationMatrix({ labels = [], matrix = [] }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </ChartShell>
   );
 }

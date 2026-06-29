@@ -1,10 +1,11 @@
 import { formatDecimal } from '../../utils/formatters';
+import ChartShell from '../charts/ChartShell';
 
 export default function FeatureImportanceChart({ features = [] }) {
   const max = Math.max(...features.map((feature) => feature.importance), 1);
 
   return (
-    <div className="importance-list">
+    <ChartShell className="importance-list" label="grafico de importancia das features">
       {features.map((feature) => (
         <div className="importance" key={feature.name || feature.display_name}>
           <div className="importance__meta">
@@ -16,6 +17,6 @@ export default function FeatureImportanceChart({ features = [] }) {
           </div>
         </div>
       ))}
-    </div>
+    </ChartShell>
   );
 }
