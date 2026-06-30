@@ -45,5 +45,5 @@ def health(response: Response) -> dict:
 
 @app.get("/", include_in_schema=False)
 def root() -> dict[str, str]:
-    return {"message": "FraudShield API", "docs": "/docs"}
+    return {"message": "IML Projeto 2026 API", "docs": "/docs"}
 

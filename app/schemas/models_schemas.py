@@ -16,6 +16,10 @@ class RocCurvesResponse(FlexibleResponse):
     models: dict[str, Any]
 
 
+class PrCurvesResponse(FlexibleResponse):
+    models: dict[str, Any]
+
+
 class CrossValidationResponse(FlexibleResponse):
     folds: list[int]
     models: dict[str, Any]

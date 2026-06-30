@@ -36,10 +36,12 @@ export const FEATURE_SHORT_NAMES = {
 };
 
 export const MODEL_COLORS = {
-  lda: '#2563eb',
-  qda: '#7c3aed',
-  lr: '#d97706',
-  rf: '#16a34a',
+  lda: '#0f766e',
+  qda: '#dc2626',
+  lr: '#7c3aed',
+  rf: '#d97706',
+  random_forest: '#d97706',
+  'reg._logística': '#7c3aed',
 };
 
 export const DEFAULT_FEATURES = {
