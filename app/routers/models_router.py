@@ -6,6 +6,7 @@ from app.schemas.models_schemas import (
     CrossValidationResponse,
     FeatureImportanceResponse,
     MetricsResponse,
+    PrCurvesResponse,
     RocCurvesResponse,
 )
 from app.services.models_service import ModelsService
@@ -29,6 +30,14 @@ def get_metrics(service: ModelsService = Depends(get_models_service)) -> dict:
 def get_roc_curves(service: ModelsService = Depends(get_models_service)) -> dict:
     try:
         return service.roc_curves()
+    except RuntimeError as exc:
+        raise _service_unavailable(exc) from exc
+
+
+@router.get("/pr-curves", response_model=PrCurvesResponse)
+def get_pr_curves(service: ModelsService = Depends(get_models_service)) -> dict:
+    try:
+        return service.pr_curves()
     except RuntimeError as exc:
         raise _service_unavailable(exc) from exc
 

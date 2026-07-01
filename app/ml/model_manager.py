@@ -41,17 +41,19 @@ class ModelManager:
 
     @staticmethod
     def _fraud_probability(model: Any, row: pd.DataFrame) -> float:
+        model_input = row if getattr(model, "feature_names_in_", None) is not None else row.to_numpy()
+
         if hasattr(model, "predict_proba"):
-            probabilities = model.predict_proba(row)[0]
+            probabilities = model.predict_proba(model_input)[0]
             classes = list(getattr(model, "classes_", [0, 1]))
             class_index = classes.index(1) if 1 in classes else len(probabilities) - 1
             return float(probabilities[class_index])
 
         if hasattr(model, "decision_function"):
-            score = float(model.decision_function(row)[0])
+            score = float(model.decision_function(model_input)[0])
             return 1.0 / (1.0 + math.exp(-score))
 
-        return float(model.predict(row)[0])
+        return float(model.predict(model_input)[0])
 
     @property
     def is_loaded(self) -> bool:

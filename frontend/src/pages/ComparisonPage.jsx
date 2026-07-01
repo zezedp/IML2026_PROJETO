@@ -4,6 +4,7 @@ import {
   getCrossValidation,
   getFeatureImportance,
   getMetrics,
+  getPrCurves,
   getRocCurves,
 } from '../api/modelsApi';
 import LineChart from '../components/charts/LineChart';
@@ -26,6 +27,47 @@ const METRIC_LABELS = {
   auc_roc: 'AUC-ROC',
 };
 
+const CURVE_LINE_STYLES = {
+  lda: [],
+  qda: [8, 5],
+  lr: [3, 4],
+  rf: [12, 5, 3, 5],
+};
+
+const MODEL_LEGEND_ORDER = ['lda', 'qda', 'rf', 'lr'];
+
+const CURVE_ID_ALIASES = {
+  random_forest: 'rf',
+  'reg._logística': 'lr',
+};
+
+const normalizeCurveId = (id) => CURVE_ID_ALIASES[id] || id;
+
+const getCurveColor = (id) => MODEL_COLORS[id] || MODEL_COLORS[normalizeCurveId(id)] || '#2563eb';
+
+const formatCurveLabel = (label) => label.replace(/\s*\((?:AUC|AP)=[^)]+\)/g, '');
+
+const buildCurveDatasets = ({ models, metrics, xKey, yKey }) => (
+  Object.entries(models).map(([id, model]) => {
+    const normalizedId = normalizeCurveId(id);
+    const color = getCurveColor(id);
+
+    return {
+      label: formatCurveLabel(model.label),
+      data: model.points
+        .map((point) => ({ x: point[xKey], y: point[yKey] }))
+        .sort((a, b) => a.x - b.x),
+      borderColor: color,
+      backgroundColor: color,
+      borderDash: CURVE_LINE_STYLES[normalizedId] || [],
+      borderWidth: normalizedId === metrics.best_model ? 3.25 : 2.25,
+      pointRadius: 0,
+      stepped: true,
+      tension: 0,
+    };
+  })
+);
+
 export default function ComparisonPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,12 +78,13 @@ export default function ComparisonPage() {
     Promise.all([
       getMetrics(),
       getRocCurves(),
+      getPrCurves(),
       getCrossValidation(),
       getConfusionMatrices(),
       getFeatureImportance(),
     ])
-      .then(([metrics, roc, crossValidation, confusion, importance]) => {
-        if (active) setData({ metrics, roc, crossValidation, confusion, importance });
+      .then(([metrics, roc, pr, crossValidation, confusion, importance]) => {
+        if (active) setData({ metrics, roc, pr, crossValidation, confusion, importance });
       })
       .catch((err) => {
         if (active) setError(err);
@@ -67,25 +110,39 @@ export default function ComparisonPage() {
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage error={error} />;
 
-  const rocDatasets = Object.entries(data.roc.models).map(([id, model]) => ({
-    label: model.label,
-    data: model.points.map((point) => ({ x: point.fpr, y: point.tpr })),
-    borderColor: MODEL_COLORS[id] || '#2563eb',
-    backgroundColor: MODEL_COLORS[id] || '#2563eb',
-    pointRadius: 0,
-    borderWidth: id === data.metrics.best_model ? 3 : 2,
-    tension: 0.15,
-  }));
+  const rocDatasets = buildCurveDatasets({
+    models: data.roc.models,
+    metrics: data.metrics,
+    xKey: 'fpr',
+    yKey: 'tpr',
+  });
 
-  const cvDatasets = Object.entries(data.crossValidation.models).map(([id, model]) => ({
-    label: id.toUpperCase(),
-    data: model.scores,
-    borderColor: MODEL_COLORS[id] || '#2563eb',
-    backgroundColor: MODEL_COLORS[id] || '#2563eb',
-    pointRadius: 4,
-    borderWidth: 2,
-    tension: 0.25,
-  }));
+  const prDatasets = buildCurveDatasets({
+    models: data.pr.models,
+    metrics: data.metrics,
+    xKey: 'recall',
+    yKey: 'precision',
+  });
+
+  const curveLabels = Object.entries(data.roc.models).reduce((acc, [id, model]) => {
+    acc[normalizeCurveId(id)] = formatCurveLabel(model.label);
+    return acc;
+  }, {});
+
+  const cvDatasets = Object.entries(data.crossValidation.models)
+    .sort(([firstId], [secondId]) => (
+      MODEL_LEGEND_ORDER.indexOf(normalizeCurveId(firstId))
+      - MODEL_LEGEND_ORDER.indexOf(normalizeCurveId(secondId))
+    ))
+    .map(([id, model]) => ({
+      label: curveLabels[normalizeCurveId(id)] || id.toUpperCase(),
+      data: model.scores,
+      borderColor: getCurveColor(id),
+      backgroundColor: getCurveColor(id),
+      pointRadius: 4,
+      borderWidth: 2,
+      tension: 0.25,
+    }));
 
   return (
     <>
@@ -131,13 +188,32 @@ export default function ComparisonPage() {
             datasets={rocDatasets}
             options={{
               parsing: false,
+              interaction: { mode: 'nearest', intersect: false },
               scales: {
-                x: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'FPR' } },
-                y: { min: 0, max: 1, title: { display: true, text: 'TPR' } },
+                x: { type: 'linear', min: 0, max: 0.08, title: { display: true, text: 'FPR' } },
+                y: { min: 0.65, max: 1, title: { display: true, text: 'TPR' } },
               },
             }}
           />
         </Card>
+
+        <Card title="Curvas PR">
+          <LineChart
+            datasets={prDatasets}
+            options={{
+              parsing: false,
+              interaction: { mode: 'nearest', intersect: false },
+              scales: {
+                x: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'Recall' } },
+                y: { min: 0, max: 1, title: { display: true, text: 'Precision' } },
+              },
+            }}
+          />
+        </Card>
+
+      </div>
+
+      <div className="grid grid--two">
 
         <Card title="Validação Cruzada">
           <LineChart labels={data.crossValidation.folds.map((fold) => `Fold ${fold}`)} datasets={cvDatasets} />
@@ -162,6 +238,10 @@ export default function ComparisonPage() {
             </table>
           </div>
         </Card>
+
+        <Card title={`Importância das Features | ${data.importance.model}`}>
+          <FeatureImportanceChart features={data.importance.features} />
+        </Card>
       </div>
 
       <Card title={`Matrizes de Confusão | Teste com ${formatNumber(data.confusion.test_size)} transações`}>
@@ -180,9 +260,6 @@ export default function ComparisonPage() {
         </div>
       </Card>
 
-      <Card title={`Importância das Features | ${data.importance.model}`}>
-        <FeatureImportanceChart features={data.importance.features} />
-      </Card>
     </>
   );
 }
