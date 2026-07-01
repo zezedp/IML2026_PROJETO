@@ -29,5 +29,5 @@
       "true_positive": 17481
     }
   },
-  "test_size": 50000
+  "test_size": 200000
 }
