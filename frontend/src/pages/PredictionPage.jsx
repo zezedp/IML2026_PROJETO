@@ -62,7 +62,7 @@ export default function PredictionPage() {
     <>
       <SectionHeader
         title="PREDIÇÃO INTERATIVA"
-        description="Simule uma transação e veja a resposta dos quatro modelos."
+        description="Simule uma transação e veja a resposta dos modelos carregados."
       />
 
       {error && <ErrorMessage error={error} />}

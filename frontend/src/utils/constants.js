@@ -38,10 +38,12 @@ export const FEATURE_SHORT_NAMES = {
 export const MODEL_COLORS = {
   lda: '#0f766e',
   qda: '#dc2626',
+  pca_qda: '#0891b2',
   lr: '#7c3aed',
   rf: '#d97706',
   random_forest: '#d97706',
   'reg._logística': '#7c3aed',
+  'reg._logÃ­stica': '#7c3aed',
 };
 
 export const DEFAULT_FEATURES = {

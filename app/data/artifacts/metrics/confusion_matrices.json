@@ -27,6 +27,15 @@
       "false_positive": 0,
       "false_negative": 0,
       "true_positive": 17481
+    },
+    "pca_qda": {
+      "name": "PCA + QDA",
+      "true_negative": 176354,
+      "false_positive": 6165,
+      "false_negative": 9944,
+      "true_positive": 7537,
+      "n_sintetico": 146701,
+      "n_components": 3
     }
   },
   "test_size": 200000

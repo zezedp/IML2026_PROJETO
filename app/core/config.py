@@ -53,6 +53,7 @@ CORRELATION_LABELS = {
 MODEL_METADATA = {
     "lda": ("LDA", "Linear Discriminant Analysis"),
     "qda": ("QDA", "Quadratic Discriminant Analysis"),
+    "pca_qda": ("PCA + QDA", "PCA (7 componentes) + Quadratic Discriminant Analysis"),
     "lr": ("Reg. Logistica", "Logistic Regression"),
     "rf": ("Random Forest", "Random Forest Classifier"),
 }

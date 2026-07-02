@@ -30,11 +30,17 @@ const METRIC_LABELS = {
 const CURVE_LINE_STYLES = {
   lda: [],
   qda: [8, 5],
+  pca_qda: [2, 4],
   lr: [3, 4],
   rf: [12, 5, 3, 5],
 };
 
-const MODEL_LEGEND_ORDER = ['lda', 'qda', 'rf', 'lr'];
+const CURVE_DRAW_ORDER = {
+  pca_qda: 2,
+  qda: 1,
+};
+
+const MODEL_LEGEND_ORDER = ['lda', 'qda', 'pca_qda', 'rf', 'lr'];
 
 const CURVE_ID_ALIASES = {
   random_forest: 'rf',
@@ -44,6 +50,11 @@ const CURVE_ID_ALIASES = {
 const normalizeCurveId = (id) => CURVE_ID_ALIASES[id] || id;
 
 const getCurveColor = (id) => MODEL_COLORS[id] || MODEL_COLORS[normalizeCurveId(id)] || '#2563eb';
+
+const getModelOrder = (id) => {
+  const order = MODEL_LEGEND_ORDER.indexOf(normalizeCurveId(id));
+  return order === -1 ? MODEL_LEGEND_ORDER.length : order;
+};
 
 const formatCurveLabel = (label) => label.replace(/\s*\((?:AUC|AP)=[^)]+\)/g, '');
 
@@ -60,7 +71,8 @@ const buildCurveDatasets = ({ models, metrics, xKey, yKey }) => (
       borderColor: color,
       backgroundColor: color,
       borderDash: CURVE_LINE_STYLES[normalizedId] || [],
-      borderWidth: normalizedId === metrics.best_model ? 3.25 : 2.25,
+      borderWidth: normalizedId === 'pca_qda' ? 5 : normalizedId === metrics.best_model ? 3.25 : 2.25,
+      order: CURVE_DRAW_ORDER[normalizedId] || 0,
       pointRadius: 0,
       stepped: true,
       tension: 0,
@@ -131,8 +143,7 @@ export default function ComparisonPage() {
 
   const cvDatasets = Object.entries(data.crossValidation.models)
     .sort(([firstId], [secondId]) => (
-      MODEL_LEGEND_ORDER.indexOf(normalizeCurveId(firstId))
-      - MODEL_LEGEND_ORDER.indexOf(normalizeCurveId(secondId))
+      getModelOrder(firstId) - getModelOrder(secondId)
     ))
     .map(([id, model]) => ({
       label: curveLabels[normalizeCurveId(id)] || id.toUpperCase(),
@@ -148,7 +159,7 @@ export default function ComparisonPage() {
     <>
       <SectionHeader
         title="COMPARAÇÃO DE MODELOS"
-        description="Métricas, estabilidade e leitura operacional dos quatro modelos treinados."
+        description="Métricas, estabilidade e leitura operacional dos modelos treinados."
       />
 
       <Card title="Métricas Comparativas">
@@ -182,7 +193,7 @@ export default function ComparisonPage() {
         </div>
       </Card>
 
-      <div className="grid grid--two">
+      <div className="grid grid--two comparison-curves">
         <Card title="Curvas ROC">
           <LineChart
             datasets={rocDatasets}

@@ -307,6 +307,10 @@
   font-weight: 900;
 }
 
+.comparison-curves {
+  margin-top: 28px;
+}
+
 .is-best-row td:first-child {
   border-left: 3px solid var(--primary);
 }
