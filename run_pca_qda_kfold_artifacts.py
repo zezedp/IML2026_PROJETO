@@ -28,7 +28,7 @@ N_COMPONENTS = 3
 
 MODEL_ID = "pca_qda"
 MODEL_NAME = "PCA + QDA"
-MODEL_FULL_NAME = "PCA (7 componentes) + Quadratic Discriminant Analysis"
+MODEL_FULL_NAME = f"PCA ({N_COMPONENTS} componentes) + Quadratic Discriminant Analysis"
 
 DATASET_PATH = Path("dataset/card_transdata.csv")
 METRICS_DIR = Path("app/data/artifacts/metrics")
@@ -107,14 +107,67 @@ def criar_pca_qda():
 
 
 def read_json(path):
-    with path.open("r", encoding="utf-8") as file:
+    if not path.exists() or path.stat().st_size == 0:
+        return {"models": {}}
+    with path.open("r", encoding="utf-8-sig") as file:
         return json.load(file)
 
 
 def write_json(path, data):
-    with path.open("w", encoding="utf-8") as file:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = path.with_suffix(f"{path.suffix}.tmp")
+    with temp_path.open("w", encoding="utf-8") as file:
         json.dump(data, file, indent=2, ensure_ascii=False)
         file.write("\n")
+    temp_path.replace(path)
+
+
+def sample_curve_points(x_values, y_values, x_key, y_key, max_points=500):
+    if len(x_values) <= max_points:
+        indexes = range(len(x_values))
+    else:
+        indexes = np.linspace(0, len(x_values) - 1, max_points, dtype=int)
+
+    points = []
+    seen = set()
+    for index in indexes:
+        point = {
+            x_key: round_float(x_values[index]),
+            y_key: round_float(y_values[index]),
+        }
+        point_key = (point[x_key], point[y_key])
+        if point_key not in seen:
+            points.append(point)
+            seen.add(point_key)
+    return points
+
+
+def sample_existing_points(points, x_key, y_key, max_points=500):
+    if len(points) <= max_points:
+        return [
+            {x_key: round_float(point[x_key]), y_key: round_float(point[y_key])}
+            for point in points
+        ]
+
+    indexes = np.linspace(0, len(points) - 1, max_points, dtype=int)
+    sampled = []
+    seen = set()
+    for index in indexes:
+        source = points[index]
+        point = {
+            x_key: round_float(source[x_key]),
+            y_key: round_float(source[y_key]),
+        }
+        point_key = (point[x_key], point[y_key])
+        if point_key not in seen:
+            sampled.append(point)
+            seen.add(point_key)
+    return sampled
+
+
+def compact_curve_models(data, x_key, y_key):
+    for model in data.get("models", {}).values():
+        model["points"] = sample_existing_points(model.get("points", []), x_key, y_key)
 
 
 def save_model(model):
@@ -210,12 +263,10 @@ def update_roc_curves_json(y_test, y_score, auc_roc):
 
     data["models"][MODEL_ID] = {
         "label": f"{MODEL_NAME} (AUC={auc_roc:.3f})",
-        "points": [
-            {"fpr": float(fpr_value), "tpr": float(tpr_value)}
-            for fpr_value, tpr_value in zip(fpr, tpr)
-        ],
+        "points": sample_curve_points(fpr, tpr, "fpr", "tpr"),
     }
 
+    compact_curve_models(data, "fpr", "tpr")
     write_json(path, data)
 
 
@@ -226,12 +277,10 @@ def update_pr_curves_json(y_test, y_score, pr_auc):
 
     data["models"][MODEL_ID] = {
         "label": f"{MODEL_NAME} (AP={pr_auc:.3f})",
-        "points": [
-            {"recall": float(recall_value), "precision": float(precision_value)}
-            for precision_value, recall_value in zip(precision, recall)
-        ],
+        "points": sample_curve_points(recall, precision, "recall", "precision"),
     }
 
+    compact_curve_models(data, "recall", "precision")
     write_json(path, data)
 
 
