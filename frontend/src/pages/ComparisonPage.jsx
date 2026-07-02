@@ -18,21 +18,22 @@ import FeatureImportanceChart from '../components/comparison/FeatureImportanceCh
 import { MODEL_COLORS } from '../utils/constants';
 import { formatDecimal, formatNumber, formatPercent } from '../utils/formatters';
 
-const METRIC_KEYS = ['accuracy', 'precision', 'recall', 'f1_score', 'auc_roc'];
+const METRIC_KEYS = ['accuracy', 'precision', 'recall', 'f1_score', 'auc_roc', 'pr_auc'];
 const METRIC_LABELS = {
   accuracy: 'Acurácia',
   precision: 'Precisão',
   recall: 'Recall',
   f1_score: 'F1-score',
   auc_roc: 'AUC-ROC',
+  pr_auc: 'PR AUC',
 };
 
 const CURVE_LINE_STYLES = {
-  lda: [],
-  qda: [8, 5],
-  pca_qda: [2, 4],
-  lr: [3, 4],
-  rf: [12, 5, 3, 5],
+  lda: [6, 4],
+  qda: [6, 4],
+  pca_qda: [6, 4],
+  lr: [6, 4],
+  rf: [6, 4],
 };
 
 const CURVE_DRAW_ORDER = {
@@ -70,12 +71,12 @@ const buildCurveDatasets = ({ models, metrics, xKey, yKey }) => (
         .sort((a, b) => a.x - b.x),
       borderColor: color,
       backgroundColor: color,
-      borderDash: CURVE_LINE_STYLES[normalizedId] || [],
-      borderWidth: normalizedId === 'pca_qda' ? 5 : normalizedId === metrics.best_model ? 3.25 : 2.25,
+      borderDash: CURVE_LINE_STYLES[normalizedId] || [6, 4],
+      borderWidth: normalizedId === metrics.best_model ? 3.25 : 2.25,
       order: CURVE_DRAW_ORDER[normalizedId] || 0,
       pointRadius: 0,
-      stepped: true,
-      tension: 0,
+      stepped: false,
+      tension: 0.4,
     };
   })
 );
@@ -201,8 +202,8 @@ export default function ComparisonPage() {
               parsing: false,
               interaction: { mode: 'nearest', intersect: false },
               scales: {
-                x: { type: 'linear', min: 0, max: 0.08, title: { display: true, text: 'FPR' } },
-                y: { min: 0.65, max: 1, title: { display: true, text: 'TPR' } },
+                x: { type: 'linear', min: -0.003, max: 0.5, title: { display: true, text: 'FPR' } },
+                y: { min: 0, max: 1.02, title: { display: true, text: 'TPR' } },
               },
             }}
           />
@@ -215,8 +216,8 @@ export default function ComparisonPage() {
               parsing: false,
               interaction: { mode: 'nearest', intersect: false },
               scales: {
-                x: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'Recall' } },
-                y: { min: 0, max: 1, title: { display: true, text: 'Precision' } },
+                x: { type: 'linear', min: 0, max: 1.005, title: { display: true, text: 'Recall' } },
+                y: { min: 0, max: 1.02, title: { display: true, text: 'Precision' } },
               },
             }}
           />

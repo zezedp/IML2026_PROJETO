@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
+    average_precision_score,
     auc,
     confusion_matrix,
     f1_score,
@@ -289,6 +290,7 @@ def calculate_metrics(y_true: pd.Series, y_pred: np.ndarray, y_score: np.ndarray
         "recall": round(float(recall_score(y_true, y_pred, zero_division=0)), 6),
         "f1_score": round(float(f1_score(y_true, y_pred, zero_division=0)), 6),
         "auc_roc": round(float(roc_auc_score(y_true, y_score)), 6),
+        "pr_auc": round(float(average_precision_score(y_true, y_score)), 6),
     }
 
 
